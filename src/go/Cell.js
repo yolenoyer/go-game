@@ -4,7 +4,7 @@ const { otherPlayer } = require('./playerColor.js');
 
 
 /**
- * Renvoie une liste mergée de toutes les lignes fournies en paramètres
+ * Renvoie une liste mergée de toutes les listes fournies en paramètre(s).
  *
  * @param {Game}  Jeu associé
  * @param {CellList} ...cell_lists
@@ -22,7 +22,17 @@ function mergeCellLists(game, ...cell_lists) {
 
 
 /**
- * Représente une intersection du goban.
+ * Représente une case du plateau.
+ *
+ * Une case peut prendre 3 états:
+ *  - vide  (this.state === null)
+ *  - blanc (this.state === WHITE)
+ *  - noir  (this.state === BLACK)
+ *
+ * Chaque case fait partie d'une "chaine":
+ *  - Si la case est isolée, alors cette chaine possèdera un seul élément.
+ *  - Si la case possède des "amis" (cases voisines de la même couleur), alors cette case partagera
+ *    sa "chaine" avec eux.
  */
 class Cell {
 	constructor(game, x, y) {

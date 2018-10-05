@@ -1,5 +1,5 @@
 
-const { BLACK, WHITE } = require('./go_game/playerColor');
+const { BLACK, WHITE } = require('./go/playerColor');
 
 
 /**

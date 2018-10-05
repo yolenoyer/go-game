@@ -5,7 +5,7 @@
  */
 class ContextCell {
 	/**
-	 * Constructor.
+	 * Constructeur.
 	 *
 	 * @param {Cell} cell  Case associée
 	 */

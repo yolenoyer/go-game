@@ -61,17 +61,6 @@ class Game {
 	}
 
 	/**
-	 * Définit l'état d'un case particulière du goban.
-	 *
-	 * @param {number} x
-	 * @param {number} y
-	 * @param {number} state  WHITE|BLACK|null
-	 */
-	setCell(x, y, state) {
-		this.getCell(x, y).setState(state);
-	}
-
-	/**
 	 * Change de joueur courant.
 	 */
 	togglePlayer() {
@@ -92,47 +81,66 @@ class Game {
 	}
 
 	/**
+	 * Pour chaque case, supprime le cache indiquant si le coup est jouable.
+	 */
+	resetIsAllowedCache() {
+		this.eachCell(cell => cell.resetIsAllowedCache());
+	}
+
+
+	//############################################################################################
+	//                                      CONTEXT SAVE:                                       //
+	//############################################################################################
+
+	/**
 	 * Démarre le mode `SaveContext`, utilisé pour tester si une case est autorisée pour un joueur.
+	 * Lorsque ce mode est activé, chaque modification sur une case (changement d'état, changement
+	 * de chaine) implique une sauvegarde préalable du changement opéré.
+	 * Les changements opérés sur chaque case peuvent ainsi être annulés si besoin.
 	 */
 	startSaveContext() {
-		this.saveCurrentPlayer = this.currentPlayer;
+		// Active le mode 'SaveContext':
 		this.saveContext = true;
+		// Stocke le joueur actuel, qui sera restauré en cas d'annulation:
+		this.saveCurrentPlayer = this.currentPlayer;
+		// Va contenir l'état originel des cases modifiées, qui sera restauré en cas d'annulation:
 		this.context = [];
 	}
 
 	/**
-	 * Réinitialise les cases modifiées depuis le commencement du mode 'SaveContext', puis stoppe le
-	 * mode.
+	 * Interne: Stoppe le mode 'SaveContext'.
 	 */
-	stopSaveContext() {
+	_stopSaveContext() {
+		// Désactive le mode 'SaveContext':
 		this.saveContext = false;
+
+		// Supprime les propriétés devenue obsolètes:
 		delete this.context;
+		delete this.saveCurrentPlayer;
 	}
 
 	/**
-	 * Restore le contexte sauvargé des cases modifiées après un appel à `startSaveContext()`.
+	 * Annule les modifications opérées sur le jeu depuis l'appel à `startSaveContext()`.
 	 */
 	restoreSaveContext() {
+		// Restore l'état de chaque case modifiée (propriétés `state` et `chain`):
 		for (let save_context of this.context) {
 			save_context.restore();
 		}
+
+		// Redéfinit le joueur courant:
 		this.currentPlayer = this.saveCurrentPlayer;
-		this.stopSaveContext();
+
+		// Stoppe le mode 'SaveContext':
+		this._stopSaveContext();
 	}
 
 	/**
-	 * Applique le contexte sauvargé des cases modifiées après un appel à `startSaveContext()`.
+	 * Applique le contexte sauvegardé des cases modifiées après un appel à `startSaveContext()`.
 	 */
 	applySaveContext() {
-		this.stopSaveContext();
+		this._stopSaveContext();
 		this.resetIsAllowedCache();
-	}
-
-	/**
-	 * Pour chaque case, supprime le cache indiquant si le coup est jouable ici.
-	 */
-	resetIsAllowedCache() {
-		this.eachCell(cell => cell.resetIsAllowedCache());
 	}
 
 	/**
@@ -164,6 +172,11 @@ class Game {
 		return context_cell;
 	}
 
+
+	//############################################################################################
+	//                                     JOUER UN COUP:                                       //
+	//############################################################################################
+
 	/**
 	 * Effectue un tour de jeu pour le joueur courant.
 	 *
@@ -171,7 +184,7 @@ class Game {
 	 *
 	 * @return {CellList}  Liste des ennemis capturés
 	 */
-	play(cell) {
+	_play(cell) {
 		cell.setState(this.currentPlayer);
 
 		// Crée la chaine pour le nouveau pion, en fusionnant éventuellement avec les chaines amies
@@ -198,25 +211,29 @@ class Game {
 	 *
 	 * @param {Cell} cell  Case à jouer
 	 *
-	 * @return {CellList}  Liste des ennemis capturés
+	 * @return {CellList|null}  Liste des ennemis capturés, ou `null` si le coup est interdit
 	 */
 	tryPlay(cell) {
 		this.startSaveContext();
 
-		let ennemies_to_capture = this.play(cell);
+		let ennemies_to_capture = this._play(cell);
 
+		// Récupère le nombre de libertés que possède la nouvelle chaine de la pierre jouée:
 		let nb_liberties = cell.chain.getLiberties().length;
+
 		if (nb_liberties === 0) {
+			// Si la chaine n'a aucune liberté, alors ce coup est interdit, et le coup est annulé:
 			this.restoreSaveContext();
 			return null;
 		} else {
+			// Si la chaine a au moins une liberté, alors le coup est appliqué:
 			this.applySaveContext();
 			return ennemies_to_capture;
 		}
 	}
 
 	/**
-	 * Simule entièrement un coup, puis annule les changements d'état effectués.
+	 * Simule entièrement un coup afin de vérifier s'il est autorisé.
 	 * Renvoie `true` si le coup est autorisé.
 	 *
 	 * @param {Cell} cell  Case dans laquelle ouer (joueur courant)
@@ -226,10 +243,11 @@ class Game {
 	isPlayAllowed(cell) {
 		this.startSaveContext();
 
-		this.play(cell);
+		this._play(cell);
 		let nb_liberties = cell.chain.getLiberties().length;
 
 		this.restoreSaveContext();
+
 		return nb_liberties !== 0;
 	}
 }

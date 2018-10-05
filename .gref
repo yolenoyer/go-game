@@ -1,2 +1,5 @@
 dist/index.html
 src
+!.*
+!*.xcf
+!*.png

@@ -1,7 +1,7 @@
 
 require('./css/style.scss');
 
-const Game = require('./go_game/Game');
+const Game = require('./go/Game');
 const GoBoard = require('./GoBoard');
 
 
