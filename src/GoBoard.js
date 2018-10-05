@@ -31,9 +31,6 @@ class GoBoardCell {
 	 */
 	buildDom() {
 		this.dom = $('<td>')
-			.append($('<div class="bullet">')
-				.append('<span>&bullet;</span>')
-			)
 			.append($('<div class="piece">')
 				.append('<span>&bullet;</span>')
 			)
