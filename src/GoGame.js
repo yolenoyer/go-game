@@ -5,32 +5,41 @@ const BLACK = 2;
 
 
 /**
- * Supprime la marque de toutes les cases données.
+ * Renvoie une liste mergée de toutes les lignes fournies en paramètres
  *
- * @param {Cell[]} cells  Liste de cases
+ * @param {GoGame}  Jeu associé
+ * @param {CellList} ...cell_lists
+ *
+ * @return {CellList}
  */
-function unmarkCells(cells)
-{
-	cells.map(cell => cell.unmark());
+function mergeCellLists(game, ...cell_lists) {
+	let list = new CellList(game);
+	for (let cell_list of cell_lists) {
+		list.appendCellList(cell_list);
+	}
+	return list;
 }
 
 
 /**
- * Marque toutes les cases données.
+ * Renvoie la valeur représentant le joueur opposé.
  *
- * @param {Cell[]} cells  Liste de cases
+ * @param {number} player  BLACK|WHITE
+ *
+ * @return {number}
  */
-function markCells(cells)
+function otherPlayer(player)
 {
-	cells.map(cell => cell.mark());
+	if (player === WHITE) return BLACK;
+	if (player === BLACK) return WHITE;
+	return null;
 }
 
 
-
 /**
- * Represénte une chaîne dans le jeu de go.
+ * Représente un groupe de cases.
  */
-class Chain {
+class CellList {
 	/**
 	 * Constructeur.
 	 *
@@ -43,13 +52,6 @@ class Chain {
 	}
 
 	/**
-	 * Supprime la marque de toutes les cases de la chaîne.
-	 */
-	unmark() {
-		unmarkCells(this.cells);
-	}
-
-	/**
 	 * Renvoie la taille de la chaîne.
 	 *
 	 * @return {number}
@@ -59,30 +61,132 @@ class Chain {
 	}
 
 	/**
+	 * Supprime la marque de toutes les cases de la liste.
+	 */
+	unmark()
+	{
+		this.cells.map(cell => cell.unmark());
+	}
+
+
+	/**
+	 * Marque toutes les cases de la liste.
+	 */
+	mark()
+	{
+		this.cells.map(cell => cell.mark());
+	}
+
+	/**
+	 * Définit une nouvelle chaine pour toutes les cases de la liste.
+	 *
+	 * @param chain
+	 */
+	setChain(chain) {
+		for(let cell of this.cells) {
+			cell.setChain(chain);
+		}
+	}
+
+	/**
+	 * Enlève du plateau tous les pions de la liste.
+	 */
+	capture() {
+		this.cells.map(cell => cell.capture());
+	}
+
+	/**
+	 * Ajoute des cases à cette liste.
+	 *
+	 * @param {Cell} ...cells
+	 */
+	append(...cells) {
+		this.cells.push(...cells);
+	}
+
+	/**
+	 * Ajoute à cette liste les éléments d'une autre liste.
+	 *
+	 * @param {CellList} list
+	 */
+	appendCellList(list) {
+		this.cells.push(...list.cells);
+	}
+
+	/**
+	 * Retourne une nouvelle liste filtrée par la fonction donnée.
+	 *
+	 * @param {function} filter
+	 *
+	 * @return {CellList}
+	 */
+	getFilteredList(filter) {
+		return new CellList(this.game, this.cells.filter(filter));
+	}
+
+	/**
+	 * Renvoie la liste des cases vides de la liste.
+	 *
+	 * @return {CellList}
+	 */
+	getFreeCells() {
+		return this.getFilteredList(cell => cell.isEmpty());
+	}
+
+	/**
+	 * Renvoie la liste des cases vides et non-marquées.
+	 *
+	 * @return {CellList}
+	 */
+	getFreeUnmarkedCells() {
+		return this.getFilteredList(cell => cell.isEmpty() && !cell.isMarked());
+	}
+
+	/**
+	 * Renvoie uniquement les cases appartenant à un joueur donné.
+	 *
+	 * @return {CellList}
+	 */
+	getFriendsCells(player) {
+		return this.getFilteredList(cell => cell.state === player);
+	}
+
+}
+
+
+
+/**
+ * Représente une chaîne dans le jeu de go.
+ */
+class Chain extends CellList {
+
+	/**
 	 * Renvoie la liste des cases de liberté de la chaîne.
 	 *
-	 * @return {Cell[]}
+	 * @return {CellList}
 	 */
 	getLiberties() {
-		let liberties = [];
+		let liberties = new CellList(this.game);
 
 		for (let cell of this.cells) {
 			let empty_unmarked_neighbours = cell.getFreeUnmarkedNeighbours();
-			markCells(empty_unmarked_neighbours);
-			liberties.push(...empty_unmarked_neighbours);
+			empty_unmarked_neighbours.mark();
+			liberties.appendCellList(empty_unmarked_neighbours);
 		}
 
 		// Nettoie les marquages utilisés durant le process:
-		unmarkCells(liberties);
+		liberties.unmark();
 
 		return liberties;
 	}
 
 	/**
-	 * Enlève du plateau tous les pions de la chaîne.
+	 * Ajoute à cette chaine les éléments d'une autre chaine.
+	 *
+	 * @param {Chain|CellList} chain
 	 */
-	capture() {
-		this.cells.map(cell => cell.capture());
+	appendChain(chain) {
+		this.appendCellList(chain);
 	}
 }
 
@@ -97,6 +201,7 @@ class Cell {
 		this.x = x;
 		this.y = y;
 		this.setState(null);
+		this.setChain(null);
 	}
 
 	/**
@@ -106,6 +211,15 @@ class Cell {
 	 */
 	setState(state) {
 		this.state = state;
+	}
+
+	/**
+	 * Définit la chaine courante de la case.
+	 *
+	 * @param {Chain} chain
+	 */
+	setChain(chain) {
+		this.chain = chain;
 	}
 
 	/**
@@ -154,130 +268,87 @@ class Cell {
 	 * Renvoie les cases voisines de la case. La liste renvoyée n'aura jamais plus de quatre
 	 * éléments.
 	 *
-	 * @return {Cell[]}
+	 * @return {CellList}
 	 */
 	getNeighbours() {
-		let neighbours = [];
+		if (!this.neighbours) {
+			this.neighbours = new CellList(this.game);
 
-		if (this.x > 0) {
-			neighbours.push(this.game.getCell(this.x - 1, this.y));
-		}
-		if (this.x < this.game.width - 1) {
-			neighbours.push(this.game.getCell(this.x + 1, this.y));
+			if (this.x > 0) {
+				this.neighbours.append(this.game.getCell(this.x - 1, this.y));
+			}
+			if (this.x < this.game.width - 1) {
+				this.neighbours.append(this.game.getCell(this.x + 1, this.y));
+			}
+
+			if (this.y > 0) {
+				this.neighbours.append(this.game.getCell(this.x, this.y - 1));
+			}
+			if (this.y < this.game.height - 1) {
+				this.neighbours.append(this.game.getCell(this.x, this.y + 1));
+			}
 		}
 
-		if (this.y > 0) {
-			neighbours.push(this.game.getCell(this.x, this.y - 1));
-		}
-		if (this.y < this.game.height - 1) {
-			neighbours.push(this.game.getCell(this.x, this.y + 1));
-		}
-
-		return neighbours;
+		return this.neighbours;
 	}
 
 	/**
 	 * Renvoie la liste des cases vides voisines de la case.
 	 *
-	 * @return {Cell[]}
+	 * @return {CellList}
 	 */
 	getFreeNeighbours() {
-		return this.getNeighbours().filter(neighbour => neighbour.isEmpty());
+		return this.getNeighbours().getFreeCells();
 	}
 
 	/**
 	 * Renvoie la liste des cases voisines vides et non-marquées de la case.
 	 *
-	 * @return {Cell[]}
+	 * @return {CellList}
 	 */
 	getFreeUnmarkedNeighbours() {
-		return this.getNeighbours().filter(
-			neighbour => neighbour.isEmpty() && !neighbour.isMarked()
-		);
+		return this.getNeighbours().getFreeUnmarkedCells();
 	}
 
 	/**
 	 * Renvoie les proches amis de la case. La liste renvoyée n'aura jamais plus de quatre
 	 * éléments.
 	 *
-	 * @return {Cell[]}
+	 * @return {CellList}
 	 */
 	getFriends() {
 		if (this.isEmpty()) {
 			return [];
 		}
-		return this.getNeighbours().filter(neighbour => neighbour.state === this.state);
+		return this.getNeighbours().getFriendsCells(this.state);
 	}
 
 	/**
 	 * Renvoie les proches ennemis de la case. La liste renvoyée n'aura jamais plus de quatre
 	 * éléments.
 	 *
-	 * @return {Cell[]}
+	 * @return {CellList}
 	 */
 	getEnnemies() {
 		if (this.isEmpty()) {
 			return [];
 		}
-		return this.getNeighbours().filter(
-			neighbour => !neighbour.isEmpty() && neighbour.state !== this.state
-		);
-	}
-	
-	/**
-	 * Renvoie la liste des amis non-marqués.
-	 *
-	 * @return {Cell[]}
-	 */
-	getUnmarkedFriends() {
-		return this.getFriends().filter(friend => !friend.isMarked());
+		return this.getNeighbours().getFriendsCells(otherPlayer(this.state));
 	}
 
 	/**
-	 * Fonction récursive pour `this.getChain()`.
+	 * Renvoie la liste des chaines amies des voisin de la case.
 	 *
-	 * @return {Cell[]}
+	 * @return {Chain[]}
 	 */
-	_getChainedFriends() {
-		let friends = [];
-		let unmarked_friends = this.getUnmarkedFriends();
-
-		friends.push(...unmarked_friends);
-
-		// Marque les éléments amis:
-		markCells(unmarked_friends);
-		this.mark();
-
-		// Ajoute récursivement les éléments amis d'amis d'amis...:
-		for (let friend of unmarked_friends) {
-			let friends_of_friend = friend._getChainedFriends();
-			friends.push(...friends_of_friend);
+	getFriendChains() {
+		let friend_chains = [];
+		for (let friend of this.getFriends().cells) {
+			if (friend.chain && !friend_chains.includes(friend.chain)) {
+				friend_chains.push(friend.chain);
+			}
 		}
-
-		return friends;
-	}
-
-	/**
-	 * Retourne la chaine à laquelle appartient cette cellule.
-	 *
-	 * @param {boolean} unmark  Interne: si =`false`, ne nettoie pas les marquages utilisés
-	 *
-	 * @return {Chain}
-	 */
-	getChain(unmark = true) {
-		if (this.isEmpty() || this.isMarked()) {
-			return [];
-		}
-
-		let cells = this._getChainedFriends();
-		cells.push(this);
-
-		// Nettoie les marquages utilisés durant le process:
-		if (unmark) {
-			unmarkCells(cells);
-		}
-
-		return new Chain(this.game, cells);
+		return friend_chains;
 	}
 
 	/**
@@ -287,30 +358,33 @@ class Cell {
 	 * @return {Chain[]}
 	 */
 	getEnnemyChains() {
-		let chains = [];
-		let ennemies = this.getEnnemies();
-		for (let ennemy of ennemies) {
-			if (!ennemy.isMarked()) {
-				// Récupère la chaîne de l'ennemi, sans nettoyer les marquages des cases:
-				let ennemy_chain = ennemy.getChain(false);
-				chains.push(ennemy_chain);
+		let ennemy_chains = [];
+		for (let ennemy of this.getEnnemies().cells) {
+			if (ennemy.chain && !ennemy_chains.includes(ennemy.chain)) {
+				ennemy_chains.push(ennemy.chain);
 			}
 		}
-
-		// Nettoie tous les marquages utilisés durant le process:
-		chains.map(chain => chain.unmark());
-
-		return chains;
+		return ennemy_chains;
 	}
 
 	/**
-	 * Renvoie la liste des chaînes capturables immédiatement.
+	 * Renvoie la liste des chaînes ennemies capturables immédiatement.
 	 *
 	 * @return {Chain[]}
 	 */
-	checkCapturedChains() {
+	getChainsToCapture() {
 		let chains = this.getEnnemyChains();
 		return chains.filter(chain => chain.getLiberties().length === 0);
+	}
+
+	/**
+	 * Renvoie la liste des cases ennemies à capturer.
+	 *
+	 * @return {CellList}
+	 */
+	getEnnemiesToCapture() {
+		let chains_to_capture = this.getChainsToCapture();
+		return mergeCellLists(this.game, ...chains_to_capture);
 	}
 }
 
@@ -342,6 +416,9 @@ class GoGame {
 
 		// Les noirs commencent:
 		this.currentPlayer = BLACK;
+
+		// Liste de toutes les chaines actuelles:
+		this.chains = [];
 
 		// Création du goban:
 		this.goban = [];
@@ -382,37 +459,35 @@ class GoGame {
 	 * Change de joueur courant.
 	 */
 	togglePlayer() {
-		switch (this.currentPlayer) {
-			case WHITE:
-				this.currentPlayer = BLACK;
-				break;
-			case BLACK:
-				this.currentPlayer = WHITE;
-		}
+		this.currentPlayer = otherPlayer(this.currentPlayer);
 	}
 
 	/**
 	 * Effectue un tour de jeu pour le joueur courant.
 	 *
 	 * @param {Cell} cell  Case dans laquelle poser une pierre.
+	 *
+	 * @return {CellList}  Liste des ennemis capturés
 	 */
 	play(cell) {
 		cell.setState(this.currentPlayer);
 
-		// Vérifie si des pions ont été supprimés:
-		let chains_to_be_captured = cell.checkCapturedChains();
+		// Crée la chaine pour le nouveau pion, en fusionnant éventuellement avec les chaines amies
+		// voisines:
+		let new_chain = new Chain(this, [ cell ]);
+		for (let friend_chain of cell.getFriendChains()) {
+			new_chain.appendChain(friend_chain);
+		}
+		new_chain.setChain(new_chain);
 
-		// Capture tous les pions (en mémoire):
-		chains_to_be_captured.map(chain => chain.capture());
-
+		// Change de joueur courant:
 		this.togglePlayer();
 
-		let cells_to_be_captured = [];
-		for (let chain of chains_to_be_captured) {
-			cells_to_be_captured.push(...chain.cells);
-		}
+		// Capture les ennemis à capturer:
+		let ennemies_to_capture = cell.getEnnemiesToCapture();
+		ennemies_to_capture.capture();
 
-		return cells_to_be_captured;
+		return ennemies_to_capture;
 	}
 }
 

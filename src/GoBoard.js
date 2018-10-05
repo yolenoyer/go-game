@@ -31,7 +31,6 @@ class GoBoardCell {
 	 */
 	buildDom() {
 		this.dom = $('<td>')
-			.data(this)
 			.append($('<div class="bullet">')
 				.append('<span>&bullet;</span>')
 			)
@@ -71,8 +70,7 @@ class GoBoardCell {
 			if (this.cell.isAllowed()) {
 				this.setState(this.game.currentPlayer);
 				let cells_to_be_captured = this.game.play(this.cell);
-				console.log(cells_to_be_captured);
-				for (let cell of cells_to_be_captured) {
+				for (let cell of cells_to_be_captured.cells) {
 					cell.boardCell.capture();
 				}
 			} else {

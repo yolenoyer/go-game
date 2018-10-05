@@ -33,5 +33,5 @@ class App {
 }
 
 
-new App(19, 19);
+new App(9, 9);
 
