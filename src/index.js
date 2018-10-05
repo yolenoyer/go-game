@@ -1,12 +1,7 @@
 
 require('./css/style.scss');
 
-const {
-	GoGame,
-	BLACK,
-	WHITE,
-} = require('./GoGame');
-
+const Game = require('./go_game/Game');
 const GoBoard = require('./GoBoard');
 
 
@@ -20,7 +15,7 @@ class App {
 	}
 
 	reset() {
-		this.game = new GoGame(this.width, this.height);
+		this.game = new Game(this.width, this.height);
 		this.board = new GoBoard(this.board, this.game);
 
 		$('body').keydown((ev) => {

@@ -1,5 +1,5 @@
 
-const { BLACK, WHITE } = require('./GoGame');
+const { BLACK, WHITE } = require('./go_game/playerColor');
 
 
 /**
@@ -132,7 +132,7 @@ class GoBoard {
 	 * Constructeur.
 	 *
 	 * @param {JQueryDOM} dom  Cible dans laquelle créer le tableau de jeu
-	 * @param {GoGame} game    Gestionnaire du jeu (en aveugle)
+	 * @param {Game} game      Gestionnaire du jeu (en aveugle)
 	 */
 	constructor(dom, game) {
 		this.dom = dom;
