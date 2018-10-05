@@ -33,7 +33,9 @@ main {
 
 		background-color: orange;
 
-		table {
+		table.cell {
+			$border: 2px solid black;
+
 			border-collapse: collapse;
 			td {
 				width: $cell-size / 2;
@@ -42,94 +44,40 @@ main {
 			}
 
 			tr:nth-child(1) {
-				// Top Left
-				td:nth-child(1) {
-					border-right: 2px solid black;
-					border-bottom: 2px solid black;
+				td:nth-child(1) { // Top Left
+					border-right: $border;
+					border-bottom: $border;
 				}
-				// Top Right
-				td:nth-child(2) {
-					border-bottom: 2px solid black;
+				td:nth-child(2) { // Top Right
+					border-bottom: $border;
 				}
 			}
 			tr:nth-child(2) {
-				// Bottom Left
-				td:nth-child(1) {
-					border-right: 2px solid black;
-				}
-				// Bottom Right
-				td:nth-child(2) {
+				td:nth-child(1) { // Bottom Left
+					border-right: $border;
 				}
 			}
 
 		}
 
-		&.top {
-			table {
-				tr:nth-child(1) {
-					// Top Left
-					td:nth-child(1) {
-						border-right-color: transparent;
-					}
-				}
+		// Permet de ne pas afficher les lignes et colonnes extérieures:
+		@mixin skip-border($class, $x, $y, $side) {
+			&.#{$class}  table.cell tr:nth-child(#{$y})  td:nth-child(#{$x}) {
+				border-#{$side}-color: transparent;
 			}
 		}
-
-		&.bottom {
-			table {
-				tr:nth-child(2) {
-					// Bottom Left
-					td:nth-child(1) {
-						border-right-color: transparent;
-					}
-				}
-			}
-		}
-
-		&.right {
-			table {
-				tr:nth-child(1) {
-					// Top Right
-					td:nth-child(2) {
-						border-bottom-color: transparent;
-					}
-				}
-			}
-		}
-
-		&.left {
-			table {
-				tr:nth-child(1) {
-					// Top Left
-					td:nth-child(1) {
-						border-bottom-color: transparent;
-					}
-				}
-			}
-		}
-
-		.bullet {
-			position: absolute;
-			width: $cell-size;
-			height: $cell-size;
-
-			display: flex;
-			justify-content: center;
-			align-items: center;
-
-			user-select: none;
-
-			span {
-				font-size: 1.5em;
-				color: black;
-			}
-		}
+		@include skip-border(top, 1, 1, right);
+		@include skip-border(bottom, 1, 2, right);
+		@include skip-border(right, 2, 1, bottom);
+		@include skip-border(left, 1, 1, bottom);
 
 		.piece {
+			// Taille des pièces (entre 0 et 1) par rapport à la taille des cases:
+			$piece-ratio: 0.7;
+
 			position: absolute;
 			width: $cell-size;
 			height: $cell-size;
-			overflow: hidden;
 
 			display: flex;
 			justify-content: center;
@@ -137,24 +85,30 @@ main {
 
 			user-select: none;
 
-			span {
+			.circle {
 				display: none;
-				font-size: 5em;
+				width: $cell-size * $piece-ratio;
+				height: $cell-size * $piece-ratio;
+				border-radius: 1000px;
 			}
 
 		}
 
-		&.black .piece span {
-			display: inline-block;
-			color: black;
+		&.black, &.white {
+			.circle {
+				display: block;
+			}
 		}
 
-		&.white .piece span {
-			display: inline-block;
-			color: white;
+		&.black .circle {
+			background-color: black;
 		}
 
-		&.pending .piece span {
+		&.white .circle {
+			background-color: white;
+		}
+
+		&.pending .circle {
 			opacity: 0.5;
 		}
 

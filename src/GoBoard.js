@@ -32,9 +32,9 @@ class GoBoardCell {
 	buildDom() {
 		this.dom = $('<td>')
 			.append($('<div class="piece">')
-				.append('<span>&bullet;</span>')
+				.append('<div class="circle">')
 			)
-			.append($('<table>')
+			.append($('<table class="cell">')
 				.append($('<tr>')
 					.append('<td>')
 					.append('<td>')
