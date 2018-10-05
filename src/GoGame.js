@@ -240,7 +240,7 @@ class Cell {
 	 * Renvoie `true` si la case est jouable par le joueur courant.
 	 */
 	isAllowed() {
-		return this.state === null;
+		return this.isEmpty();
 	}
 
 	/**
@@ -311,16 +311,25 @@ class Cell {
 	}
 
 	/**
+	 * Renvoie les cases voisines d'un joueur donné. La liste renvoyée n'aura jamais plus de quatre
+	 * éléments.
+	 *
+	 * @param {number} player  Joueur concerné
+	 *
+	 * @return {CellList}
+	 */
+	getPlayerNeighbours(player) {
+		return this.getNeighbours().getFriendsCells(player);
+	}
+
+	/**
 	 * Renvoie les proches amis de la case. La liste renvoyée n'aura jamais plus de quatre
 	 * éléments.
 	 *
 	 * @return {CellList}
 	 */
 	getFriends() {
-		if (this.isEmpty()) {
-			return [];
-		}
-		return this.getNeighbours().getFriendsCells(this.state);
+		return this.getPlayerNeighbours(this.state);
 	}
 
 	/**
@@ -330,25 +339,31 @@ class Cell {
 	 * @return {CellList}
 	 */
 	getEnnemies() {
-		if (this.isEmpty()) {
-			return [];
-		}
-		return this.getNeighbours().getFriendsCells(otherPlayer(this.state));
+		return this.getPlayerNeighbours(otherPlayer(this.state));
 	}
 
 	/**
-	 * Renvoie la liste des chaines amies des voisin de la case.
+	 * Renvoie la liste des chaines voisines de la case pour un certain joueur.
+	 *
+	 * @return {Chain[]}
+	 */
+	getPlayerChains(player) {
+		let neighbour_chains = [];
+		for (let neighbour of this.getPlayerNeighbours(player).cells) {
+			if (neighbour.chain && !neighbour_chains.includes(neighbour.chain)) {
+				neighbour_chains.push(neighbour.chain);
+			}
+		}
+		return neighbour_chains;
+	}
+
+	/**
+	 * Renvoie la liste des chaines amies des voisins de la case.
 	 *
 	 * @return {Chain[]}
 	 */
 	getFriendChains() {
-		let friend_chains = [];
-		for (let friend of this.getFriends().cells) {
-			if (friend.chain && !friend_chains.includes(friend.chain)) {
-				friend_chains.push(friend.chain);
-			}
-		}
-		return friend_chains;
+		return this.getPlayerChains(this.state);
 	}
 
 	/**
@@ -358,13 +373,7 @@ class Cell {
 	 * @return {Chain[]}
 	 */
 	getEnnemyChains() {
-		let ennemy_chains = [];
-		for (let ennemy of this.getEnnemies().cells) {
-			if (ennemy.chain && !ennemy_chains.includes(ennemy.chain)) {
-				ennemy_chains.push(ennemy.chain);
-			}
-		}
-		return ennemy_chains;
+		return this.getPlayerChains(otherPlayer(this.state));
 	}
 
 	/**
