@@ -3,6 +3,7 @@ const { BLACK, WHITE, otherPlayer } = require('./playerColor');
 const CellList = require('./CellList');
 const Chain = require('./Chain');
 const Cell = require('./Cell');
+const ContextCell = require('./ContextCell');
 
 
 /**
@@ -78,6 +79,71 @@ class Game {
 	}
 
 	/**
+	 * Démarre le mode `SaveContext`, utilisé pour tester si une case est autorisée pour un joueur.
+	 */
+	startSaveContext() {
+		this.saveCurrentPlayer = this.currentPlayer;
+		this.saveContext = true;
+		this.context = [];
+	}
+
+	/**
+	 * Réinitialise les cases modifiées depuis le commencement du mode 'SaveContext', puis stoppe le
+	 * mode.
+	 */
+	stopSaveContext() {
+		this.saveContext = false;
+		delete this.context;
+	}
+
+	/**
+	 * Restore le contexte sauvargé des cases modifiées après un appel à `startSaveContext()`.
+	 */
+	restoreSaveContext() {
+		for (let save_context of this.context) {
+			save_context.restore();
+		}
+		this.currentPlayer = this.saveCurrentPlayer;
+		this.stopSaveContext();
+	}
+
+	/**
+	 * Applique le contexte sauvargé des cases modifiées après un appel à `startSaveContext()`.
+	 */
+	applySaveContext() {
+		this.stopSaveContext();
+	}
+
+	/**
+	 * Cherche si une cellule a été stockée dans le contexte (mode 'SaveContext'), et renvoie
+	 * l'objet `ContextCell`correspondant.
+	 *
+	 * @param {Cell} cell  Cellule à chercher
+	 *
+	 * @return {ContextCell|undefined}  Contexte sauvegardé de la cellule trouvée, ou undefined si
+	 *                                  non-trouvé
+	 */
+	findContextCell(cell) {
+		return this.context.find(context_cell => context_cell.cell === cell);
+	}
+
+	/**
+	 * Trouve un objet `ContextCell`, ou le crée si non-trouvé.
+	 *
+	 * @param {Cell} cell  Case associée
+	 *
+	 * @return {ContextCell}  Objet créé
+	 */
+	getContextCell(cell) {
+		let context_cell = this.findContextCell(cell);
+		if (!context_cell) {
+			context_cell = new ContextCell(cell);
+			this.context.push(context_cell);
+		}
+		return context_cell;
+	}
+
+	/**
 	 * Effectue un tour de jeu pour le joueur courant.
 	 *
 	 * @param {Cell} cell  Case dans laquelle poser une pierre.
@@ -103,6 +169,47 @@ class Game {
 		ennemies_to_capture.capture();
 
 		return ennemies_to_capture;
+	}
+
+	/**
+	 * Tente de jouer la case indiquée (joueur courant). Si ce coup est interdit, restore l'état
+	 * original.
+	 *
+	 * @param {Cell} cell  Case à jouer
+	 *
+	 * @return {CellList}  Liste des ennemis capturés
+	 */
+	tryPlay(cell) {
+		this.startSaveContext();
+
+		let ennemies_to_capture = this.play(cell);
+
+		let nb_liberties = cell.chain.getLiberties().length;
+		if (nb_liberties === 0) {
+			this.restoreSaveContext();
+			return null;
+		} else {
+			this.applySaveContext();
+			return ennemies_to_capture;
+		}
+	}
+
+	/**
+	 * Simule entièrement un coup, puis annule les changements d'état effectués.
+	 * Renvoie `true` si le coup est autorisé.
+	 *
+	 * @param {Cell} cell  Case dans laquelle ouer (joueur courant)
+	 *
+	 * @return {boolean}  `true` si le coup est autorisé
+	 */
+	isPlayAllowed(cell) {
+		this.startSaveContext();
+
+		this.play(cell);
+		let nb_liberties = cell.chain.getLiberties().length;
+
+		this.restoreSaveContext();
+		return nb_liberties !== 0;
 	}
 }
 

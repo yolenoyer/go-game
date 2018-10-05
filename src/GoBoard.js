@@ -69,12 +69,12 @@ class GoBoardCell {
 		this.dom.click(() => {
 			if (this.cell.isAllowed()) {
 				this.setState(this.game.currentPlayer);
-				let cells_to_be_captured = this.game.play(this.cell);
-				for (let cell of cells_to_be_captured.cells) {
-					cell.boardCell.capture();
+				let cells_to_be_captured = this.game.tryPlay(this.cell);
+				if (cells_to_be_captured !== null) {
+					for (let cell of cells_to_be_captured.cells) {
+						cell.boardCell.capture();
+					}
 				}
-			} else {
-				alert("Désolé, ce coup est interdit.");
 			}
 		})
 

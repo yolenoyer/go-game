@@ -39,6 +39,9 @@ class Cell {
 	 * @param {mixed} state BLACK|WHITE|null
 	 */
 	setState(state) {
+		if (this.game.saveContext) {
+			this.getContextCell().save({ state: this.state });
+		}
 		this.state = state;
 	}
 
@@ -48,6 +51,9 @@ class Cell {
 	 * @param {Chain} chain
 	 */
 	setChain(chain) {
+		if (this.game.saveContext) {
+			this.getContextCell().save({ chain: this.chain });
+		}
 		this.chain = chain;
 	}
 
@@ -69,7 +75,11 @@ class Cell {
 	 * Renvoie `true` si la case est jouable par le joueur courant.
 	 */
 	isAllowed() {
-		return this.isEmpty();
+		if (!this.isEmpty()) {
+			return false;
+		} else {
+			return this.game.isPlayAllowed(this);
+		}
 	}
 
 	/**
@@ -91,6 +101,15 @@ class Cell {
 	 */
 	isMarked() {
 		return !!this.marked;
+	}
+
+	/**
+	 * Trouve ou crée un `ContextCell` pour cette case.
+	 *
+	 * @return {ContextCell}
+	 */
+	getContextCell() {
+		return this.game.getContextCell(this);
 	}
 
 	/**
