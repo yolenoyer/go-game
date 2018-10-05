@@ -79,6 +79,19 @@ class Game {
 	}
 
 	/**
+	 * Loope sur chaque case.
+	 *
+	 * @param {function} func  Fonction à utiliser (1 paramètre = case)
+	 */
+	eachCell(func) {
+		for (let y = 0; y != this.height; y++) {
+			for (let x = 0; x != this.width; x++) {
+				func(this.getCell(x, y));
+			}
+		}
+	}
+
+	/**
 	 * Démarre le mode `SaveContext`, utilisé pour tester si une case est autorisée pour un joueur.
 	 */
 	startSaveContext() {
@@ -112,6 +125,8 @@ class Game {
 	 */
 	applySaveContext() {
 		this.stopSaveContext();
+		// Supprime le cache de chaque case pour savoir si le coup est jouable ici:
+		this.eachCell(cell => cell.resetIsAllowedCache());
 	}
 
 	/**

@@ -75,11 +75,23 @@ class Cell {
 	 * Renvoie `true` si la case est jouable par le joueur courant.
 	 */
 	isAllowed() {
-		if (!this.isEmpty()) {
-			return false;
+		if (this._isAllowed === undefined) {
+			if (!this.isEmpty()) {
+				this._isAllowed = false;
+			} else {
+				this._isAllowed = this.game.isPlayAllowed(this);
+			}
 		} else {
-			return this.game.isPlayAllowed(this);
 		}
+		return this._isAllowed;
+	}
+
+	/**
+	 * Supprime le cache pour la valeur de retour de la méthode `isAllowed()`.
+	 * Doit être fait sur chaque case après chaque coup.
+	 */
+	resetIsAllowedCache() {
+		delete this._isAllowed;
 	}
 
 	/**
