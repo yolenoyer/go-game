@@ -1,13 +1,13 @@
 
 /**
- * Représente un groupe de cases.
+ * Représente une liste de cases.
  */
 class CellList {
 	/**
 	 * Constructeur.
 	 *
 	 * @param Game game      Jeu associé
-	 * @param {Array} cells  Optionnels: liste de cases initiale
+	 * @param {Array} cells  Optionnel: liste de cases initiale
 	 */
 	constructor(game, cells) {
 		this.game = game;
@@ -15,7 +15,7 @@ class CellList {
 	}
 
 	/**
-	 * Renvoie la taille de la chaîne.
+	 * Renvoie la taille de la liste.
 	 *
 	 * @return {number}
 	 */
@@ -43,7 +43,7 @@ class CellList {
 	/**
 	 * Définit une nouvelle chaine pour toutes les cases de la liste.
 	 *
-	 * @param chain
+	 * @param {Chain} chain
 	 */
 	setChain(chain) {
 		for(let cell of this.cells) {
