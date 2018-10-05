@@ -1,0 +1,167 @@
+
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 1.2em;
+
+	color: ivory;
+	background-color: #444;
+}
+
+
+main {
+	padding-top: 2em;
+}
+
+
+#board {
+	$cell-size: 2em;
+
+	margin: auto;
+
+	border-collapse: collapse;
+
+	cursor: default;
+	&, * {
+		user-select: none;
+	}
+
+	td {
+		width: $cell-size;
+		height: $cell-size;
+
+		padding: 0;
+
+		background-color: orange;
+
+		table {
+			border-collapse: collapse;
+			td {
+				width: $cell-size / 2;
+				height: $cell-size / 2;
+				box-sizing: border-box;
+			}
+
+			tr:nth-child(1) {
+				// Top Left
+				td:nth-child(1) {
+					border-right: 2px solid black;
+					border-bottom: 2px solid black;
+				}
+				// Top Right
+				td:nth-child(2) {
+					border-bottom: 2px solid black;
+				}
+			}
+			tr:nth-child(2) {
+				// Bottom Left
+				td:nth-child(1) {
+					border-right: 2px solid black;
+				}
+				// Bottom Right
+				td:nth-child(2) {
+				}
+			}
+
+		}
+
+		&.top {
+			table {
+				tr:nth-child(1) {
+					// Top Left
+					td:nth-child(1) {
+						border-right-color: transparent;
+					}
+				}
+			}
+		}
+
+		&.bottom {
+			table {
+				tr:nth-child(2) {
+					// Bottom Left
+					td:nth-child(1) {
+						border-right-color: transparent;
+					}
+				}
+			}
+		}
+
+		&.right {
+			table {
+				tr:nth-child(1) {
+					// Top Right
+					td:nth-child(2) {
+						border-bottom-color: transparent;
+					}
+				}
+			}
+		}
+
+		&.left {
+			table {
+				tr:nth-child(1) {
+					// Top Left
+					td:nth-child(1) {
+						border-bottom-color: transparent;
+					}
+				}
+			}
+		}
+
+		.bullet {
+			position: absolute;
+			width: $cell-size;
+			height: $cell-size;
+
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			user-select: none;
+
+			span {
+				font-size: 1.5em;
+				color: black;
+			}
+		}
+
+		.piece {
+			position: absolute;
+			width: $cell-size;
+			height: $cell-size;
+			overflow: hidden;
+
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			user-select: none;
+
+			span {
+				display: none;
+				font-size: 5em;
+			}
+
+		}
+
+		&.black .piece span {
+			display: inline-block;
+			color: black;
+		}
+
+		&.white .piece span {
+			display: inline-block;
+			color: white;
+		}
+
+		&.pending .piece span {
+			opacity: 0.5;
+		}
+
+		&.forbidden {
+			cursor: not-allowed;
+		}
+
+	} // } td (case de plateau)
+} // } #board
+
