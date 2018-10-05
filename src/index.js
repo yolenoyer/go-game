@@ -22,6 +22,7 @@ class App {
 			let key = ev.originalEvent.key;
 			if (key === 'a') {
 				this.game.togglePlayer();
+				this.game.resetIsAllowedCache();
 			}
 		});
 	}

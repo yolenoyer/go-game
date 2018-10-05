@@ -125,7 +125,13 @@ class Game {
 	 */
 	applySaveContext() {
 		this.stopSaveContext();
-		// Supprime le cache de chaque case pour savoir si le coup est jouable ici:
+		this.resetIsAllowedCache();
+	}
+
+	/**
+	 * Pour chaque case, supprime le cache indiquant si le coup est jouable ici.
+	 */
+	resetIsAllowedCache() {
 		this.eachCell(cell => cell.resetIsAllowedCache());
 	}
 
