@@ -2,7 +2,7 @@
 require('./css/style.scss');
 
 const Game = require('./go/Game');
-const GoBoard = require('./GoBoard');
+const Board = require('./Board');
 const Url = require('./Url');
 
 
@@ -74,7 +74,7 @@ class App {
 
 	reset() {
 		this.game = new Game(this.width, this.height);
-		this.board = new GoBoard(this.boardDom, this.game);
+		this.board = new Board(this.boardDom, this.game);
 
 		window.app = this;
 		window.game = this.game;

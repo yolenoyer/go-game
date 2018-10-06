@@ -1,17 +1,19 @@
 
-const EventEmitter = require('eventemitter3');
-
 const Player = require('./go/Player');
+
+
+// Noms de classe css des layers à ajouter dans les cases de plateau:
+const CellLayers = [ 'piece', 'liberty-mark', 'chain-mark' ];
 
 
 /**
  * Définit une cellule du plateau (DOM).
  */
-class GoBoardCell {
+class BoardCell {
 	/**
 	 * Constructeur.
 	 *
-	 * @param {GoBoard} board  Plateau associé
+	 * @param {Board} board  Plateau associé
 	 * @param {number} x
 	 * @param {number} y
 	 */
@@ -32,16 +34,19 @@ class GoBoardCell {
 	 * Construit l'élément Dom de la cellule.
 	 */
 	buildDom() {
-		this.dom = $('<td class="board-cell">')
-			.append($('<div class="layer piece">')
-				.append('<div class="visual">')
-			)
-			.append($('<div class="layer liberty-mark">')
-				.append('<div class="visual">')
-			)
-			.append($('<div class="layer chain-mark">')
-				.append('<div class="visual">')
-			)
+		this.dom = $('<td class="board-cell">');
+
+		// Ajoute les layers permettant d'afficher les pierres, les libertés, les chaines...:
+		for (let layer_name of CellLayers) {
+			this.dom
+				.append($(`<div class="layer ${layer_name}">`)
+					.append('<div class="visual">')
+				)
+		}
+
+		// Ajoute l'élément affichant la grille (il est ajouté en dernier car c'est le seul qui
+		// n'est pas en position absolute):
+		this.dom
 			.append($('<table class="cell">')
 				.append($('<tr>')
 					.append('<td>')
@@ -74,9 +79,7 @@ class GoBoardCell {
 			if (!this.cell.isFree()) {
 				if (this.board.displayLiberties) {
 					let liberties = this.cell.chain.getLiberties();
-					let marks = this.showMarks(liberties, '.liberty-mark');
-					let color = Player.toLowerName(this.cell.state);
-					// marks.find('.visual').css('background-color', color);
+					this.showMarks(liberties, '.liberty-mark');
 				}
 				if (this.board.displayChains) {
 					this.showMarks(this.cell.chain, '.chain-mark');
@@ -100,6 +103,7 @@ class GoBoardCell {
 			}
 		})
 
+		// Permet de ne pas afficher les lignes/colonnes extérieures du plateau:
 		if (this.x == 0) {
 			this.dom.addClass('left');
 		}
@@ -166,90 +170,6 @@ class GoBoardCell {
 	}
 }
 
-/**
- * Représente le plateau de jeu (DOM).
- */
-class GoBoard extends EventEmitter {
-	/**
-	 * Constructeur.
-	 *
-	 * @param {JQueryDOM} dom  Cible dans laquelle créer le tableau de jeu
-	 * @param {Game} game      Gestionnaire du jeu (en aveugle)
-	 */
-	constructor(dom, game) {
-		super();
 
-		this.dom = dom;
-		this.game = game;
-
-		// Initialise le plateau:
-		this.reset();
-	}
-
-	/**
-	 * Change le statut d'affichage des libertés.
-	 *
-	 * @param {boolean} value
-	 */
-	setDisplayLiberties(value) {
-		this.displayLiberties = value;
-		this.libertyMarks.removeClass('visible');
-	}
-
-	/**
-	 * Change le statut d'affichage des chaines.
-	 *
-	 * @param {boolean} value
-	 */
-	setDisplayChains(value) {
-		this.displayChains = value;
-		this.chainMarks.removeClass('visible');
-	}
-
-	/**
-	 * Réinitialise le plateau.
-	 */
-	reset() {
-		this.dom.empty();
-		this.boardCells = [];
-
-		// Création des cellules du plateau:
-		for (let y = 0; y != this.game.height; y++) {
-			let line = $('<tr>');
-			this.dom.append(line);
-
-			let boardLine = [];
-			this.boardCells.push(boardLine);
-
-			for (let x = 0; x != this.game.width; x++) {
-				let board_cell = new GoBoardCell(this, x, y);
-				line.append(board_cell.dom);
-				boardLine.push(board_cell);
-			}
-		}
-
-		this.$boardCells = $('.board-cell');
-		this.libertyMarks = this.$boardCells.find('.liberty-mark');
-		this.chainMarks = this.$boardCells.find('.chain-mark');
-	}
-
-	/**
-	 * Restore l'état d'un jeu précédemment décrit par la méthode `Game.getDump()`.
-	 *
-	 * @param {string} dump
-	 */
-	restoreDump(dump) {
-		this.game.restoreDump(dump);
-		this.reset();
-
-		for (let y = 0; y != this.game.height; y++) {
-			for (let x = 0; x != this.game.width; x++) {
-				this.boardCells[y][x].setState(this.game.getCell(x, y).state);
-			}
-		}
-	}
-}
-
-
-module.exports = GoBoard;
+module.exports = BoardCell;
 
