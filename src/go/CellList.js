@@ -46,9 +46,7 @@ class CellList {
 	 * @param {Chain} chain
 	 */
 	setChain(chain) {
-		for(let cell of this.cells) {
-			cell.setChain(chain);
-		}
+		this.cells.map(cell => cell.setChain(chain));
 	}
 
 	/**
@@ -97,6 +95,15 @@ class CellList {
 	}
 
 	/**
+	 * Renvoie la liste des cases non-marquées.
+	 *
+	 * @return {CellList}
+	 */
+	getUnmarkedCells() {
+		return this.getFilteredList(cell => !cell.isMarked());
+	}
+
+	/**
 	 * Renvoie la liste des cases vides et non-marquées.
 	 *
 	 * @return {CellList}
@@ -110,7 +117,7 @@ class CellList {
 	 *
 	 * @return {CellList}
 	 */
-	getFriendsCells(player) {
+	getPlayerCells(player) {
 		return this.getFilteredList(cell => cell.state === player);
 	}
 

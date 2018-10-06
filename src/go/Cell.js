@@ -1,5 +1,6 @@
 
 const CellList = require('./CellList');
+const Chain = require('./Chain');
 const Player = require('./Player');
 
 
@@ -189,7 +190,7 @@ class Cell {
 	 * @return {CellList}
 	 */
 	getPlayerNeighbours(player) {
-		return this.getNeighbours().getFriendsCells(player);
+		return this.getNeighbours().getPlayerCells(player);
 	}
 
 	/**
@@ -200,6 +201,15 @@ class Cell {
 	 */
 	getFriends() {
 		return this.getPlayerNeighbours(this.state);
+	}
+
+	/**
+	 * Renvoie la liste des cases voisines vides et non-marquées de la case.
+	 *
+	 * @return {CellList}
+	 */
+	getUnmarkedFriends() {
+		return this.getFriends().getUnmarkedCells();
 	}
 
 	/**
@@ -264,6 +274,36 @@ class Cell {
 	getEnnemiesToCapture() {
 		let chains_to_capture = this.getChainsToCapture();
 		return mergeCellLists(this.game, ...chains_to_capture);
+	}
+
+	/**
+	 * Méthode interne récursive pour la méthode `findChain()`.
+	 *
+	 * @return {Chain}
+	 */
+	_findChain() {
+		let chain = new Chain(this.game, [ this ]);
+		this.mark();
+		let unmarked_friends = this.getUnmarkedFriends();
+		for (let unmarked_friend of unmarked_friends.cells) {
+			chain.appendChain(unmarked_friend._findChain());
+		}
+		return chain;
+	}
+
+	/**
+	 * Cherche la chaine de la pièce définie dans cette case, sans passer par la propriété `chain`.
+	 * Utilisé pour recréer les chaines à partir d'un jeu sauvegardé.
+	 *
+	 * @return {Chain|null}  Chaine trouvée, ou `null` si la case est actuellement vide
+	 */
+	findChain() {
+		if (this.isFree()) {
+			return null;
+		}
+		let chain = this._findChain();
+		chain.unmark();
+		return chain;
 	}
 }
 

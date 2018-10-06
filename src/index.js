@@ -18,6 +18,10 @@ class App {
 		this.game = new Game(this.width, this.height);
 		this.board = new GoBoard(this.board, this.game);
 
+		window.game = this.game;
+		window.board = this.board;
+		window.dump = this.game.getDump.bind(this.game);
+
 		$('body').keydown((ev) => {
 			let key = ev.originalEvent.key;
 			if (key === 'a') {

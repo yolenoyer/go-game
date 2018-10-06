@@ -7,6 +7,29 @@ const ContextCell = require('./ContextCell');
 
 
 /**
+ * Compresse et encode en base64 une chaine de caractères.
+ *
+ * @param {string} s  Chaine à encoder
+ *
+ * @return {string}
+ */
+function encode(s) {
+	return require('lz-string').compressToBase64(s);
+}
+
+/**
+ * Décode (base64) et décompresse une chaine de caractères.
+ *
+ * @param {string} s  Chaine à décoder
+ *
+ * @return {string}
+ */
+function decode(s) {
+	return require('lz-string').decompressFromBase64(s);
+}
+
+
+/**
  * Représente le goban.
  */
 class Game {
@@ -33,9 +56,6 @@ class Game {
 		// Les noirs commencent:
 		this.currentPlayer = Player.BLACK;
 
-		// Liste de toutes les chaines actuelles:
-		this.chains = [];
-
 		// Création du goban:
 		this.goban = [];
 		for (let y = 0; y != this.height; y++) {
@@ -58,6 +78,24 @@ class Game {
 	 */
 	getCell(x, y) {
 		return this.goban[y][x];
+	}
+
+	/**
+	 * Définit l'état d'un case particulière du goban.
+	 *
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {number} state  WHITE|BLACK|FREE
+	 */
+	setCell(x, y, state) {
+		this.getCell(x, y).setState(state);
+	}
+
+	/**
+	 * Définit le joueur courant.
+	 */
+	setPlayer(player) {
+		this.currentPlayer = player;
 	}
 
 	/**
@@ -85,6 +123,105 @@ class Game {
 	 */
 	resetIsAllowedCache() {
 		this.eachCell(cell => cell.resetIsAllowedCache());
+	}
+
+	/**
+	 * Cherche toutes les chaines existantes du jeu.
+	 *
+	 * @return {Chain[]}
+	 */
+	findChains() {
+		let chains = [];
+		this.eachCell(cell => {
+			if (cell.chain && !chains.includes(cell.chain)) {
+				chains.push(cell.chain);
+			}
+		});
+		return chains;
+	}
+
+
+	//############################################################################################
+	//                                       GAME DUMP:                                         //
+	//############################################################################################
+
+	/**
+	 * Renvoie une chaine décrivant précisément la partie en cours.
+	 *
+	 * @param {boolean} encoded  Si =true (défaut), encode la chaine
+	 *
+	 * @return {string}
+	 */
+	getDump(encoded=true) {
+		let dump = '';
+
+		// Dimensions:
+		dump += `${this.width}x${this.height};`;
+
+		// À qui le tour:
+		dump += `${Player.toLowerName(this.currentPlayer)};`;
+
+		// Contenu du plateau:
+		let first = true;
+		for (var y = 0; y != this.height; y++) {
+			if (first) {
+				first = false;
+			} else {
+				dump += '|';
+			}
+
+			for (var x = 0; x != this.width; x++) {
+				dump += Player.toChar(this.getCell(x, y).state);
+			}
+		}
+
+		if (encoded) {
+			dump = encode(dump);
+		}
+
+		return dump;
+	}
+
+	/**
+	 * Restore l'état d'un jeu précédemment décrit par la méthode `getDump()`.
+	 *
+	 * @param {string} dump
+	 * @param {boolean} encoded  Si =true (défaut), la chaine est d'abord décodée
+	 */
+	restoreDump(dump, encoded=true) {
+		if (encoded) {
+			dump = decode(dump);
+		}
+
+		let sections = dump.split(';');
+		let [ size, currentPlayer, board ] = sections;
+		let [ width, height ] = size.split('x').map(n => Number(n));
+		let lines = board.split('|');
+
+		this.reset(width, height);
+		this.setPlayer(Player.fromLowerName(currentPlayer));
+
+		for (var y = 0; y != this.height; y++) {
+			for (var x = 0; x != this.width; x++) {
+				this.setCell(x, y, Player.fromChar(lines[y][x]));
+			}
+		}
+
+		this.resetChains();
+	}
+
+
+	/**
+	 * Recalcule l'ensemble des chaines présentes sur le plateau.
+	 */
+	resetChains() {
+		this.eachCell(cell => cell.setChain(null));
+		this.eachCell(cell => {
+			if (!cell.isFree() && !cell.chain) {
+				let chain = cell.findChain();
+				chain.setChain(chain);
+			}
+		});
 	}
 
 
