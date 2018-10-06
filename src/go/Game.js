@@ -4,6 +4,7 @@ const CellList = require('./CellList');
 const Chain = require('./Chain');
 const Cell = require('./Cell');
 const ContextCell = require('./ContextCell');
+const Url = require('../Url');
 
 
 /**
@@ -333,7 +334,9 @@ class Game {
 		new_chain.setChain(new_chain);
 
 		// Change de joueur courant:
-		this.togglePlayer();
+		if (!Url.debug) {
+			this.togglePlayer();
+		}
 
 		// Capture les ennemis à capturer:
 		let ennemies_to_capture = cell.getEnnemiesToCapture();
