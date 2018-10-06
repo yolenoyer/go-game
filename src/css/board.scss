@@ -1,0 +1,14 @@
+
+#board {
+	$cell-size: 2em;
+
+	border-collapse: collapse;
+
+	cursor: none;
+	&, * {
+		user-select: none;
+	}
+
+	@import 'board-cell';
+}
+

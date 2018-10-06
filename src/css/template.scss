@@ -1,0 +1,51 @@
+
+html, body {
+	height: 100%;
+}
+
+
+body {
+	display: flex;
+	flex-direction: column;
+
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 1.2em;
+
+	color: $site-fg-color;
+	background-color: $site-bg-color;
+}
+
+
+header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	height: 1.8em;
+	padding: 0.4em;
+
+	background-color: lighten($site-bg-color, 6%);
+	box-shadow: 0px 10px 15px 0px rgba(0,0,0,0.75);
+
+	user-select: none;
+
+	.header-title {
+		margin-right: 0.5em;
+	}
+
+	#left-header {
+	}
+
+	#right-header {
+	}
+}
+
+
+main {
+	flex-grow: 1;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+

@@ -1,69 +1,8 @@
 
-@import 'reset.scss';
+@import 'reset';
 
-
-$site-fg-color: ivory;
-$site-bg-color: #444;
-
-
-body {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 1.2em;
-
-	color: $site-fg-color;
-	background-color: $site-bg-color;
-}
-
-
-a.icon {
-	padding: 0.4em;
-	text-decoration: none;
-	color: $site-fg-color;
-}
-
-
-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-
-	height: 1.8em;
-	padding: 0.4em;
-
-	background-color: lighten($site-bg-color, 6%);
-	box-shadow: 0px 10px 15px 0px rgba(0,0,0,0.75);
-
-	user-select: none;
-
-	.header-title {
-		margin-right: 0.5em;
-	}
-
-	#left-header {
-	}
-
-	#right-header {
-	}
-}
-
-
-main {
-	padding-top: 2em;
-}
-
-
-#board {
-	$cell-size: 2em;
-
-	margin: auto;
-
-	border-collapse: collapse;
-
-	cursor: none;
-	&, * {
-		user-select: none;
-	}
-
-	@import 'board-cell';
-} // } #board
+@import 'variables';
+@import 'template';
+@import 'design';
+@import 'site';
 
