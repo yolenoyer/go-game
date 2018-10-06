@@ -1,9 +1,14 @@
+/**
+ * Gère les paramètres d'url.
+ */
 
 let url = new URL(window.location.href);
-let search = url.searchParams;
+
+let get = url.searchParams.get.bind(url.searchParams);
 
 module.exports = {
 	url,
-	debug: search.get('debug') !== null,
+	debug: get('debug') !== null,
+	game: get('game'),
 };
 

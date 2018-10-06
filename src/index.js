@@ -3,6 +3,7 @@ require('./css/style.scss');
 
 const Game = require('./go/Game');
 const GoBoard = require('./GoBoard');
+const Url = require('./Url');
 
 
 class App {
@@ -21,6 +22,10 @@ class App {
 		window.game = this.game;
 		window.board = this.board;
 		window.dump = this.game.getDump.bind(this.game);
+
+		if (Url.game) {
+			this.board.restoreDump(Url.game);
+		}
 
 		$('body').keydown((ev) => {
 			let key = ev.originalEvent.key;

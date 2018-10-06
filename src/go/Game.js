@@ -8,25 +8,25 @@ const Url = require('../Url');
 
 
 /**
- * Compresse et encode en base64 une chaine de caractères.
+ * Compresse et encode une chaine de caractères.
  *
  * @param {string} s  Chaine à encoder
  *
  * @return {string}
  */
 function encode(s) {
-	return require('lz-string').compressToBase64(s);
+	return require('lz-string').compressToEncodedURIComponent(s);
 }
 
 /**
- * Décode (base64) et décompresse une chaine de caractères.
+ * Décode et décompresse une chaine de caractères.
  *
  * @param {string} s  Chaine à décoder
  *
  * @return {string}
  */
 function decode(s) {
-	return require('lz-string').decompressFromBase64(s);
+	return require('lz-string').decompressFromEncodedURIComponent(s);
 }
 
 
@@ -190,25 +190,31 @@ class Game {
 	 * @param {boolean} encoded  Si =true (défaut), la chaine est d'abord décodée
 	 */
 	restoreDump(dump, encoded=true) {
-		if (encoded) {
-			dump = decode(dump);
-		}
-
-		let sections = dump.split(';');
-		let [ size, currentPlayer, board ] = sections;
-		let [ width, height ] = size.split('x').map(n => Number(n));
-		let lines = board.split('|');
-
-		this.reset(width, height);
-		this.setPlayer(Player.fromLowerName(currentPlayer));
-
-		for (var y = 0; y != this.height; y++) {
-			for (var x = 0; x != this.width; x++) {
-				this.setCell(x, y, Player.fromChar(lines[y][x]));
+		try {
+			if (encoded) {
+				dump = decode(dump);
 			}
-		}
 
-		this.resetChains();
+			let sections = dump.split(';');
+			let [ size, currentPlayer, board ] = sections;
+			let [ width, height ] = size.split('x').map(n => Number(n));
+			let lines = board.split('|');
+
+			this.reset(width, height);
+			this.setPlayer(Player.fromLowerName(currentPlayer));
+
+			for (var y = 0; y != height; y++) {
+				for (var x = 0; x != width; x++) {
+					this.setCell(x, y, Player.fromChar(lines[y][x]));
+				}
+			}
+
+			this.resetChains();
+		}
+		catch(e) {
+			console.error("La partie demandée n'a pas pu être restaurée:");
+			throw e;
+		}
 	}
 
 
