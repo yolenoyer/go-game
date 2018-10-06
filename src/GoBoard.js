@@ -1,4 +1,6 @@
 
+const EventEmitter = require('eventemitter3');
+
 const Player = require('./go/Player');
 
 
@@ -71,6 +73,9 @@ class GoBoardCell {
 					for (let cell of cells_to_be_captured.cells) {
 						cell.boardCell.capture();
 					}
+
+					// Émet un évênement indiquant la fin du tour:
+					this.board.emit('turn-done');
 				}
 			}
 		})
@@ -122,7 +127,7 @@ class GoBoardCell {
 /**
  * Représente le plateau de jeu (DOM).
  */
-class GoBoard {
+class GoBoard extends EventEmitter {
 	/**
 	 * Constructeur.
 	 *
@@ -130,6 +135,8 @@ class GoBoard {
 	 * @param {Game} game      Gestionnaire du jeu (en aveugle)
 	 */
 	constructor(dom, game) {
+		super();
+
 		this.dom = dom;
 		this.game = game;
 

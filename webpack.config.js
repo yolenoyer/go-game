@@ -1,5 +1,6 @@
 
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 
 module.exports = {
@@ -21,6 +22,11 @@ module.exports = {
 			]
 		}],
 	},
+	plugins: [
+		new CopyWebpackPlugin([
+		  { from: 'node_modules/font-awesome', to: 'font-awesome' },
+		])
+	],
 };
 
 

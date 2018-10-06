@@ -4,11 +4,14 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "eventemitter3": "^3.1.0",
+    "font-awesome": "^4.7.0",
     "jquery": "^3.3.1",
     "lz-string": "^1.4.4",
     "webpack-cli": "^3.1.2"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^1.0.0",
     "node-sass": "^4.9.3",
     "sass-loader": "^7.1.0",

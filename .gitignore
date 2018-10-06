@@ -1,4 +1,5 @@
-dist/*.js
+dist/main.js
+dist/vendor.js
 dist/*.js.map
 .sw?
 *.sw?
