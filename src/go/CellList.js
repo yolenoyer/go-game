@@ -93,7 +93,7 @@ class CellList {
 	 * @return {CellList}
 	 */
 	getFreeCells() {
-		return this.getFilteredList(cell => cell.isEmpty());
+		return this.getFilteredList(cell => cell.isFree());
 	}
 
 	/**
@@ -102,7 +102,7 @@ class CellList {
 	 * @return {CellList}
 	 */
 	getFreeUnmarkedCells() {
-		return this.getFilteredList(cell => cell.isEmpty() && !cell.isMarked());
+		return this.getFilteredList(cell => cell.isFree() && !cell.isMarked());
 	}
 
 	/**

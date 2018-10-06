@@ -1,5 +1,5 @@
 
-const { BLACK, WHITE, otherPlayer } = require('./playerColor');
+const Player = require('./Player');
 const CellList = require('./CellList');
 const Chain = require('./Chain');
 const Cell = require('./Cell');
@@ -31,7 +31,7 @@ class Game {
 		this.height = height;
 
 		// Les noirs commencent:
-		this.currentPlayer = BLACK;
+		this.currentPlayer = Player.BLACK;
 
 		// Liste de toutes les chaines actuelles:
 		this.chains = [];
@@ -64,7 +64,7 @@ class Game {
 	 * Change de joueur courant.
 	 */
 	togglePlayer() {
-		this.currentPlayer = otherPlayer(this.currentPlayer);
+		this.currentPlayer = Player.other(this.currentPlayer);
 	}
 
 	/**

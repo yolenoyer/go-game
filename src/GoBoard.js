@@ -1,5 +1,5 @@
 
-const { BLACK, WHITE } = require('./go/playerColor');
+const Player = require('./go/Player');
 
 
 /**
@@ -92,7 +92,7 @@ class GoBoardCell {
 	/**
 	 * Affiche un état en semi-transparence.
 	 *
-	 * @param {mixed} state BLACK|WHITE|null
+	 * @param {mixed} state BLACK|WHITE|FREE
 	 */
 	setPending(state) {
 		this.setState(state);
@@ -102,14 +102,12 @@ class GoBoardCell {
 	/**
 	 * Définit l'état visuel de la cellule.
 	 *
-	 * @param {mixed} state BLACK|WHITE|null
+	 * @param {mixed} state BLACK|WHITE|FREE
 	 */
 	setState(state) {
 		this.dom.removeClass('black white pending');
-		if (state === WHITE) {
-			this.dom.addClass('white');
-		} else if (state === BLACK) {
-			this.dom.addClass('black');
+		if (Player.isPlayer(state)) {
+			this.dom.addClass(Player.toLowerName(state));
 		}
 	}
 
@@ -117,7 +115,7 @@ class GoBoardCell {
 	 * Capture la pièce (au niveau graphique).
 	 */
 	capture() {
-		this.setState(null);
+		this.setState(Player.FREE);
 	}
 }
 

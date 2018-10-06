@@ -1,6 +1,6 @@
 
 const CellList = require('./CellList');
-const { otherPlayer } = require('./playerColor.js');
+const Player = require('./Player');
 
 
 /**
@@ -25,9 +25,9 @@ function mergeCellLists(game, ...cell_lists) {
  * Représente une case du plateau.
  *
  * Une case peut prendre 3 états:
- *  - vide  (this.state === null)
- *  - blanc (this.state === WHITE)
- *  - noir  (this.state === BLACK)
+ *  - vide  (this.state === Player.FREE)
+ *  - blanc (this.state === Player.WHITE)
+ *  - noir  (this.state === Player.BLACK)
  *
  * Chaque case fait partie d'une "chaine":
  *  - Si la case est isolée, alors cette chaine possèdera un seul élément.
@@ -39,14 +39,14 @@ class Cell {
 		this.game = game;
 		this.x = x;
 		this.y = y;
-		this.setState(null);
+		this.setState(Player.FREE);
 		this.setChain(null);
 	}
 
 	/**
 	 * Définit l'état de la case.
 	 *
-	 * @param {mixed} state BLACK|WHITE|null
+	 * @param {mixed} state BLACK|WHITE|FREE
 	 */
 	setState(state) {
 		if (this.game.saveContext) {
@@ -71,14 +71,14 @@ class Cell {
 	 * Définit l'état de la case à 'vide'.
 	 */
 	capture() {
-		this.setState(null);
+		this.setState(Player.FREE);
 	}
 
 	/**
 	 * Renvoie `true`si cette case est vide.
 	 */
-	isEmpty() {
-		return this.state === null;
+	isFree() {
+		return this.state === Player.FREE;
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Cell {
 	 */
 	isAllowed() {
 		if (this._isAllowed === undefined) {
-			if (!this.isEmpty()) {
+			if (!this.isFree()) {
 				this._isAllowed = false;
 			} else {
 				this._isAllowed = this.game.isPlayAllowed(this);
@@ -209,7 +209,7 @@ class Cell {
 	 * @return {CellList}
 	 */
 	getEnnemies() {
-		return this.getPlayerNeighbours(otherPlayer(this.state));
+		return this.getPlayerNeighbours(Player.other(this.state));
 	}
 
 	/**
@@ -243,7 +243,7 @@ class Cell {
 	 * @return {Chain[]}
 	 */
 	getEnnemyChains() {
-		return this.getPlayerChains(otherPlayer(this.state));
+		return this.getPlayerChains(Player.other(this.state));
 	}
 
 	/**
