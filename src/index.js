@@ -8,19 +8,31 @@ const Url = require('./Url');
 
 class App {
 	constructor(width, height) {
-		this.board = $('#board');
+		this.boardDom = $('#board');
 		this.width = width;
 		this.height = height;
 
 		this.reset();
 
-		this.gameLinkButton = $('#game-link--btn');
-
+		// Gère la mise-à-jour du lien vers la partie en cours:
 		this.updateGameLinkButton();
 		this.board.on('turn-done', () => {
 			this.updateGameLinkButton();
 		})
 
+		// Gère l'activation du mode "Afficher les libertés":
+		this.updateShowLiberties();
+		$('#show-liberties--checkbox').change((ev) => {
+			this.updateShowLiberties();
+		})
+
+		// Gère l'activation du mode "Afficher les chaînes":
+		this.updateShowChains();
+		$('#show-chains--checkbox').change((ev) => {
+			this.updateShowChains();
+		})
+
+		// Outils de debug:
 		if (Url.debug) {
 			this.setupDebug();
 		}
@@ -30,7 +42,23 @@ class App {
 	 * Met à jour le lien vers la partie cours.
 	 */
 	updateGameLinkButton() {
-		this.gameLinkButton.attr('href', this.getDumpUrl());
+		$('#game-link--btn').attr('href', this.getDumpUrl());
+	}
+
+	/**
+	 * Met à jour l'affichage des libertés suivant la valeur de la checkbox correspondante.
+	 */
+	updateShowLiberties() {
+		let value = $('#show-liberties--checkbox').prop('checked');
+		this.board.setDisplayLiberties(value);
+	}
+
+	/**
+	 * Met à jour l'affichage des chaines suivant la valeur de la checkbox correspondante.
+	 */
+	updateShowChains() {
+		let value = $('#show-chains--checkbox').prop('checked');
+		this.board.setDisplayChains(value);
 	}
 
 	/**
@@ -46,7 +74,7 @@ class App {
 
 	reset() {
 		this.game = new Game(this.width, this.height);
-		this.board = new GoBoard(this.board, this.game);
+		this.board = new GoBoard(this.boardDom, this.game);
 
 		window.app = this;
 		window.game = this.game;

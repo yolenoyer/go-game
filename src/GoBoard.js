@@ -32,9 +32,15 @@ class GoBoardCell {
 	 * Construit l'élément Dom de la cellule.
 	 */
 	buildDom() {
-		this.dom = $('<td>')
-			.append($('<div class="piece">')
-				.append('<div class="circle">')
+		this.dom = $('<td class="board-cell">')
+			.append($('<div class="layer piece">')
+				.append('<div class="visual">')
+			)
+			.append($('<div class="layer liberty-mark">')
+				.append('<div class="visual">')
+			)
+			.append($('<div class="layer chain-mark">')
+				.append('<div class="visual">')
 			)
 			.append($('<table class="cell">')
 				.append($('<tr>')
@@ -50,17 +56,31 @@ class GoBoardCell {
 		// Comportement lors du survol d'une case:
 		this.dom.mouseover(() => {
 			if (this.cell.isAllowed()) {
+				// Affiche la pierre en semi-transparence:
 				this.setPending(this.game.currentPlayer);
 
 				this.dom.one('mouseout', () => {
+					// Annule l'effet de semi-transparence:
 					this.setState(this.cell.state);
 				})
 			} else {
 				this.dom.addClass('forbidden');
-
 				this.dom.one('mouseout', () => {
 					this.dom.removeClass('forbidden');
 				})
+			}
+
+			// Gère l'affichage des libertés et des chaines:
+			if (!this.cell.isFree()) {
+				if (this.board.displayLiberties) {
+					let liberties = this.cell.chain.getLiberties();
+					let marks = this.showMarks(liberties, '.liberty-mark');
+					let color = Player.toLowerName(this.cell.state);
+					// marks.find('.visual').css('background-color', color);
+				}
+				if (this.board.displayChains) {
+					this.showMarks(this.cell.chain, '.chain-mark');
+				}
 			}
 		})
 
@@ -92,6 +112,28 @@ class GoBoardCell {
 		if (this.y == this.game.height - 1) {
 			this.dom.addClass('bottom');
 		}
+	}
+
+	/**
+	 * Affiche des marqueurs de case associés à cette case, et programme leur effacement lorsque la
+	 * souris quittera la case.
+	 *
+	 * @param {CellList} cell_list    Liste de cellules à marquer
+	 * @param {string} mark_selector  Sélecteur du layer de la case gérant les marqueur voulus
+	 *
+	 * @return {Object}  Liste des marqueurs modifiés
+	 */
+	showMarks(cell_list, mark_selector) {
+		let marks = $(cell_list.cells.map(cell =>
+			cell.boardCell.dom.find(mark_selector)[0]
+		));
+
+		marks.addClass('visible');
+		this.dom.one('mouseout', () => {
+			marks.removeClass('visible');
+		})
+
+		return marks;
 	}
 
 	/**
@@ -145,6 +187,26 @@ class GoBoard extends EventEmitter {
 	}
 
 	/**
+	 * Change le statut d'affichage des libertés.
+	 *
+	 * @param {boolean} value
+	 */
+	setDisplayLiberties(value) {
+		this.displayLiberties = value;
+		this.libertyMarks.removeClass('visible');
+	}
+
+	/**
+	 * Change le statut d'affichage des chaines.
+	 *
+	 * @param {boolean} value
+	 */
+	setDisplayChains(value) {
+		this.displayChains = value;
+		this.chainMarks.removeClass('visible');
+	}
+
+	/**
 	 * Réinitialise le plateau.
 	 */
 	reset() {
@@ -165,6 +227,10 @@ class GoBoard extends EventEmitter {
 				boardLine.push(board_cell);
 			}
 		}
+
+		this.$boardCells = $('.board-cell');
+		this.libertyMarks = this.$boardCells.find('.liberty-mark');
+		this.chainMarks = this.$boardCells.find('.chain-mark');
 	}
 
 	/**

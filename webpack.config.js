@@ -18,13 +18,22 @@ module.exports = {
 			use: [
 				"style-loader", // creates style nodes from JS strings
 				"css-loader", // translates CSS into CommonJS
+				{
+					loader: "postcss-loader",
+					options: {
+						plugins: [
+							require('autoprefixer'),
+						]
+					},
+				},
 				"sass-loader" // compiles Sass to CSS, using Node Sass by default
 			]
 		}],
 	},
 	plugins: [
 		new CopyWebpackPlugin([
-		  { from: 'node_modules/font-awesome', to: 'font-awesome' },
+		  { from: 'node_modules/font-awesome/css', to: 'font-awesome/css' },
+		  { from: 'node_modules/font-awesome/fonts', to: 'font-awesome/fonts' },
 		])
 	],
 };

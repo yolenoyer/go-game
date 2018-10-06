@@ -31,8 +31,13 @@ header {
 	padding: 0.4em;
 
 	background-color: lighten($site-bg-color, 6%);
-
 	box-shadow: 0px 10px 15px 0px rgba(0,0,0,0.75);
+
+	user-select: none;
+
+	.header-title {
+		margin-right: 0.5em;
+	}
 
 	#left-header {
 	}
@@ -59,97 +64,6 @@ main {
 		user-select: none;
 	}
 
-	td {
-		width: $cell-size;
-		height: $cell-size;
-
-		padding: 0;
-
-		background-color: orange;
-
-		table.cell {
-			$border: 2px solid black;
-
-			border-collapse: collapse;
-			td {
-				width: $cell-size / 2;
-				height: $cell-size / 2;
-				box-sizing: border-box;
-			}
-
-			tr:nth-child(1) {
-				td:nth-child(1) { // Top Left
-					border-right: $border;
-					border-bottom: $border;
-				}
-				td:nth-child(2) { // Top Right
-					border-bottom: $border;
-				}
-			}
-			tr:nth-child(2) {
-				td:nth-child(1) { // Bottom Left
-					border-right: $border;
-				}
-			}
-
-		}
-
-		// Permet de ne pas afficher les lignes et colonnes extérieures:
-		@mixin skip-border($class, $x, $y, $side) {
-			&.#{$class}  table.cell tr:nth-child(#{$y})  td:nth-child(#{$x}) {
-				border-#{$side}-color: transparent;
-			}
-		}
-		@include skip-border(top, 1, 1, right);
-		@include skip-border(bottom, 1, 2, right);
-		@include skip-border(right, 2, 1, bottom);
-		@include skip-border(left, 1, 1, bottom);
-
-		.piece {
-			// Taille des pièces (entre 0 et 1) par rapport à la taille des cases:
-			$piece-ratio: 0.7;
-
-			position: absolute;
-			width: $cell-size;
-			height: $cell-size;
-
-			display: flex;
-			justify-content: center;
-			align-items: center;
-
-			user-select: none;
-
-			.circle {
-				display: none;
-				width: $cell-size * $piece-ratio;
-				height: $cell-size * $piece-ratio;
-				border-radius: 1000px;
-			}
-
-		}
-
-		&.black, &.white {
-			.circle {
-				display: block;
-			}
-		}
-
-		&.black .circle {
-			background-color: black;
-		}
-
-		&.white .circle {
-			background-color: white;
-		}
-
-		&.pending .circle {
-			opacity: 0.5;
-		}
-
-		&.forbidden {
-			cursor: not-allowed;
-		}
-
-	} // } td (case de plateau)
+	@import 'board-cell';
 } // } #board
 
