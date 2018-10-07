@@ -9,13 +9,14 @@ body {
 	flex-direction: column;
 
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 1.2em;
+	font-size: calc( (2.15vw + 3.5vh) / 5 + 5px );
 
 	color: $site-fg-color;
 	background-color: $site-bg-color;
 }
 
 
+// Barre supérieure de navigation:
 header {
 	display: flex;
 	justify-content: space-between;
@@ -26,8 +27,6 @@ header {
 
 	height: 1.8em;
 	padding: 0.4em;
-
-	font-size: calc( (2.15vw + 3.5vh) / 5 + 5px );
 
 	background: url(images/dark-wood2.jpg) repeat;
 	background-size: 800px;
@@ -41,14 +40,21 @@ header {
 		margin-right: 0.5em;
 	}
 
-	#left-header {
-	}
+	#left-header, #right-header {
+		display: flex;
+		justify-content: center;
+		align-items: center;
 
-	#right-header {
+		& > * {
+			&:not(:first-child) {
+				margin-left: 1.5em;
+			}
+		}
 	}
 }
 
 
+// Zone principale, où se trouve le goban:
 main {
 	flex-grow: 1;
 

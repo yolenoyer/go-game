@@ -14,17 +14,23 @@
     <body>
 		<header>
 			<div id="left-header">
-				<span class="header-title">Affichage:</span>
 				<span>
-					<input type="checkbox" id="show-liberties--checkbox" />
-					<label for="show-liberties--checkbox">Libertés</label>
-				</span>
-				<span>
-					<input type="checkbox" id="show-chains--checkbox" />
-					<label for="show-chains--checkbox">Chaînes</label>
+					<span class="header-title">Affichage:</span>
+					<span>
+						<input type="checkbox" id="show-liberties--checkbox" />
+						<label for="show-liberties--checkbox">Libertés</label>
+					</span>
+					<span>
+						<input type="checkbox" id="show-chains--checkbox" />
+						<label for="show-chains--checkbox">Chaînes</label>
+					</span>
 				</span>
 			</div>
 			<div id="right-header">
+				<span id="new-game--btn" class="command">
+					<span class="icon"><i class="fa fa-plus"></i></span>
+					<span class="title">Nouvelle partie</span>
+				</span>
 				<span class="icon">
 					<a id="game-link--btn" href='#' class="fa fa-link"
 						title="Lien vers la partie en l'état actuel"></a>
@@ -32,6 +38,25 @@
 			</div>
 		</header>
 		<main>
+			<div class="popup" id="new-game--popup" style="display:none">
+				<section class="header">
+					<span class="title">Nouvelle partie</span>
+					<span class="command icon popup-cancel--command"><i class="fa fa-times"></i></span>
+				</section>
+				<hr />
+				<section class="content">
+					<p>
+						Plateau:
+						<input type="number" id="game-width--input" value="9" />
+					&times;
+						<input type="number" id="game-height--input" value="9" />
+					</p>
+				</section>
+				<section class="commands">
+					<button class="ok--btn popup-confirm--command">Ok</button>
+					<button class="popup-cancel--command">Annuler</button>
+				</section>
+			</div>
 			<div id="board">
 				<div class="goban"></div>
 				<table class="cells"></table>

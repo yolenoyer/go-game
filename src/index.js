@@ -4,21 +4,15 @@ require('./css/style.scss');
 const Game = require('./go/Game');
 const Board = require('./Board');
 const Url = require('./Url');
+const Popup = require('./Popup');
 
 
 class App {
 	constructor(width, height) {
 		this.boardDom = $('#board');
-		this.width = width;
-		this.height = height;
+		this.setGameSize(width, height);
 
 		this.reset();
-
-		// Gère la mise-à-jour du lien vers la partie en cours:
-		this.updateGameLinkButton();
-		this.board.on('turn-done', () => {
-			this.updateGameLinkButton();
-		})
 
 		// Gère l'activation du mode "Afficher les libertés":
 		this.updateShowLiberties();
@@ -32,10 +26,17 @@ class App {
 			this.updateShowChains();
 		})
 
+		this.setupNewGamePopup();
+
 		// Outils de debug:
 		if (Url.debug) {
 			this.setupDebug();
 		}
+	}
+
+	setGameSize(width, height) {
+		this.width = width;
+		this.height = height;
 	}
 
 	/**
@@ -62,6 +63,26 @@ class App {
 	}
 
 	/**
+	 * Initialise les commandes pour le popup "Nouvelle partie".
+	 */
+	setupNewGamePopup() {
+		let new_game_popup = new Popup('#new-game--popup');
+
+		$('#new-game--btn').click(() => {
+			new_game_popup.show();
+		});
+
+		new_game_popup
+			.on('confirm', () => {
+				this.newGame = true;
+				let w = Number($('#game-width--input').val());
+				let h = Number($('#game-height--input').val());
+				this.setGameSize(w, h);
+				this.reset();
+			})
+	}
+
+	/**
 	 * Retourne une URL complète vers la partie en cours.
 	 *
 	 * @return {string}
@@ -72,6 +93,9 @@ class App {
 		return url;
 	}
 
+	/**
+	 * Réinitialise une nouvelle partie.
+	 */
 	reset() {
 		this.game = new Game(this.width, this.height);
 		this.board = new Board(this.boardDom, this.game);
@@ -80,9 +104,15 @@ class App {
 		window.game = this.game;
 		window.board = this.board;
 
-		if (Url.game) {
+		if (!this.newGame && Url.game) {
 			this.board.restoreDump(Url.game);
 		}
+
+		// Gère la mise-à-jour du lien vers la partie en cours:
+		this.updateGameLinkButton();
+		this.board.on('turn-done', () => {
+			this.updateGameLinkButton();
+		})
 	}
 
 	setupDebug() {

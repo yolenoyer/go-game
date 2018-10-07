@@ -1,23 +1,45 @@
 
+h3 {
+	font-size: 1.2em;
+	margin-bottom: 0.3em;
+}
+
+.command {
+	display: inline-flex;
+	justify-content: center;
+	align-items: flex-end;
+	cursor: pointer;
+
+	.icon {
+		position: relative;
+		top: 0.15em;
+		margin-right: 0.4em;
+	}
+}
+
 .icon {
 	$s: 1.5em;
 	width: $s;
 	height: $s;
 
-	display: flex;
+	display: inline-flex;
 	justify-content: center;
 	align-items: center;
+}
 
-	a {
-		text-decoration: none;
-		color: $site-fg-color;
+.icon a.fa, .command .fa {
+	text-decoration: none;
+	color: $site-fg-color;
 
-		transition: font-size 0.2s;
+	transition: font-size 0.2s;
+}
 
-		&:hover {
-			font-size: 1.4em;
-		}
-	}
+.icon a.fa:hover {
+	font-size: 1.4em;
+}
+
+.command:hover .fa {
+	font-size: 1.4em;
 }
 
 input[type=checkbox] {
