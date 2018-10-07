@@ -44,20 +44,6 @@ class BoardCell {
 				)
 		}
 
-		// Ajoute l'élément affichant la grille (il est ajouté en dernier car c'est le seul qui
-		// n'est pas en position absolute):
-		this.dom
-			.append($('<table class="cell">')
-				.append($('<tr>')
-					.append('<td>')
-					.append('<td>')
-				)
-				.append($('<tr>')
-					.append('<td>')
-					.append('<td>')
-				)
-			)
-
 		// Comportement lors du survol d'une case:
 		this.dom.mouseover(() => {
 			if (this.cell.isAllowed()) {
@@ -102,20 +88,6 @@ class BoardCell {
 				}
 			}
 		})
-
-		// Permet de ne pas afficher les lignes/colonnes extérieures du plateau:
-		if (this.x == 0) {
-			this.dom.addClass('left');
-		}
-		if (this.x == this.game.width - 1) {
-			this.dom.addClass('right');
-		}
-		if (this.y == 0) {
-			this.dom.addClass('top');
-		}
-		if (this.y == this.game.height - 1) {
-			this.dom.addClass('bottom');
-		}
 	}
 
 	/**
