@@ -24,6 +24,7 @@ class App {
 		})
 
 		this.setupNewGamePopup();
+		this.setupOptionsPopup();
 
 		// Outils de debug:
 		if (Url.debug) {
@@ -71,6 +72,17 @@ class App {
 				let h = Number($('#game-height--input').val());
 				this.reset(w, h);
 			})
+	}
+
+	/**
+	 * Initialise les commandes pour le popup "Options".
+	 */
+	setupOptionsPopup() {
+		let options_popup = new Popup('#options--popup');
+
+		$('#options--btn').click(() => {
+			options_popup.show();
+		});
 	}
 
 	/**
