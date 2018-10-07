@@ -12,8 +12,10 @@
 		text-decoration: none;
 		color: $site-fg-color;
 
+		transition: font-size 0.2s;
+
 		&:hover {
-			font-size: larger;
+			font-size: 1.4em;
 		}
 	}
 }
