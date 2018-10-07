@@ -8,9 +8,8 @@ const Popup = require('./Popup');
 class App {
 	constructor(width, height) {
 		this.boardDom = $('#board');
-		this.setGameSize(width, height);
 
-		this.reset();
+		this.reset(width, height);
 
 		// Gère l'activation du mode "Afficher les libertés":
 		this.updateShowLiberties();
@@ -30,11 +29,6 @@ class App {
 		if (Url.debug) {
 			this.setupDebug();
 		}
-	}
-
-	setGameSize(width, height) {
-		this.width = width;
-		this.height = height;
 	}
 
 	/**
@@ -75,8 +69,7 @@ class App {
 				this.newGame = true;
 				let w = Number($('#game-width--input').val());
 				let h = Number($('#game-height--input').val());
-				this.setGameSize(w, h);
-				this.reset();
+				this.reset(w, h);
 			})
 	}
 
@@ -93,8 +86,14 @@ class App {
 
 	/**
 	 * Réinitialise une nouvelle partie.
+	 *
+	 * @param {number} width   Largeur du goban
+	 * @param {number} height  Hauteur du goban
 	 */
-	reset() {
+	reset(width, height) {
+		this.width = width;
+		this.height = height;
+
 		this.game = new Game(this.width, this.height);
 		this.board = new Board(this.boardDom, this.game);
 
