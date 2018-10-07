@@ -1,4 +1,5 @@
-s  src
-d  dist
-c  src/css
-g  src/go_game
+s     src
+d     dist
+c     src/css
+g     src/go_game
+ci,i  src/css/images

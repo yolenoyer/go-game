@@ -5,8 +5,6 @@ td.board-cell {
 
 	padding: 0;
 
-	background-color: orange;
-
 	// *************************** GRID ********************************
 
 	table.cell {
@@ -82,6 +80,7 @@ td.board-cell {
 		.visual {
 			@include visual-size(0.7);
 			border-radius: 1000px;
+			box-shadow: 0.1em 0.1em 0.3em 0 rgba(0,0,0,0.9);
 		}
 	}
 
@@ -92,11 +91,13 @@ td.board-cell {
 	}
 
 	&.black .layer.piece .visual {
-		background-color: black;
+		background: url(images/black.png);
+		background-size: contain;
 	}
 
 	&.white .layer.piece .visual {
-		background-color: white;
+		background: url(images/white.png);
+		background-size: contain;
 	}
 
 	&.pending .layer.piece {
@@ -116,7 +117,7 @@ td.board-cell {
 
 	.layer.liberty-mark {
 		.visual {
-			@include visual-size(0.15);
+			@include visual-size(0.18);
 
 			transform: rotate(45deg);
 
@@ -131,7 +132,7 @@ td.board-cell {
 			@include visual-size(0.22);
 
 			border-radius: 1000px;
-			background-color: #7373f9;
+			background-color: #009de6;
 		}
 	}
 

@@ -13,22 +13,38 @@ module.exports = {
 		vendor: './node_modules/jquery/dist/jquery.min.js',
 	},
 	module: {
-		rules: [{
-			test: /\.scss$/,
-			use: [
-				"style-loader", // creates style nodes from JS strings
-				"css-loader", // translates CSS into CommonJS
-				{
-					loader: "postcss-loader",
-					options: {
-						plugins: [
-							require('autoprefixer'),
-						]
+		rules: [
+			{
+				test: /\.scss$/,
+				use: [
+					"style-loader", // creates style nodes from JS strings
+					"css-loader", // translates CSS into CommonJS
+					{
+						loader: "postcss-loader",
+						options: {
+							plugins: [
+								require('autoprefixer'),
+							]
+						},
 					},
-				},
-				"sass-loader" // compiles Sass to CSS, using Node Sass by default
-			]
-		}],
+					"sass-loader" // compiles Sass to CSS, using Node Sass by default
+				]
+			}, {
+				test: /\.jpg|\.png/,
+				use: [
+					"file-loader",
+					{
+						loader: 'image-webpack-loader',
+						options: {
+							mozjpeg: {
+								progressive: true,
+								quality: 35
+							},
+						}
+					},
+				],
+			},
+		],
 	},
 	plugins: [
 		new CopyWebpackPlugin([
