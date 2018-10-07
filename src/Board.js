@@ -20,31 +20,30 @@ class Board extends EventEmitter {
 		this.dom = dom;
 		this.game = game;
 
+		// Le dom affichant la grille du goban:
 		this.gobanDiv = this.dom.children('.goban');
+		// Le dom affichant le contenu de chaque case (pierres, marqueurs...):
 		this.cellsTable = this.dom.children('.cells');
+
+		// Stocke les options d'affichage (boolean) des marqueurs (libertés, chaines):
+		this.displayOptions = {};
+		// Stocke l'ensemble des éléments marqueur du plateau pour chaque type de marqueur
+		// (libertés, chaines):
+		this.marks = {};
 
 		// Initialise le plateau:
 		this.reset();
 	}
 
 	/**
-	 * Change le statut d'affichage des libertés.
+	 * Change le statut d'affichage d'une option (libertés, chaines...).
 	 *
 	 * @param {boolean} value
 	 */
-	setDisplayLiberties(value) {
-		this.displayLiberties = value;
-		this.libertyMarks.removeClass('visible');
-	}
-
-	/**
-	 * Change le statut d'affichage des chaines.
-	 *
-	 * @param {boolean} value
-	 */
-	setDisplayChains(value) {
-		this.displayChains = value;
-		this.chainMarks.removeClass('visible');
+	setShowOption(option_name, value) {
+		// Redéfinit la valeur de l'option:
+		this.displayOptions[option_name] = value;
+		this.marks[option_name].removeClass('visible');
 	}
 
 	/**
@@ -85,8 +84,8 @@ class Board extends EventEmitter {
 		}
 
 		this.$boardCells = this.cellsTable.find('.board-cell');
-		this.libertyMarks = this.$boardCells.find('.liberty-mark');
-		this.chainMarks = this.$boardCells.find('.chain-mark');
+		this.marks.liberties = this.$boardCells.find('.liberty-mark');
+		this.marks.chains = this.$boardCells.find('.chain-mark');
 	}
 
 	/**

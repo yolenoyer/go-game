@@ -12,15 +12,15 @@ class App {
 		this.reset(width, height);
 
 		// Gère l'activation du mode "Afficher les libertés":
-		this.updateShowLiberties();
+		this.updateShowOption('liberties');
 		$('#show-liberties--checkbox').change((ev) => {
-			this.updateShowLiberties();
+			this.updateShowOption('liberties');
 		})
 
 		// Gère l'activation du mode "Afficher les chaînes":
-		this.updateShowChains();
+		this.updateShowOption('chains');
 		$('#show-chains--checkbox').change((ev) => {
-			this.updateShowChains();
+			this.updateShowOption('chains');
 		})
 
 		this.setupNewGamePopup();
@@ -40,19 +40,38 @@ class App {
 	}
 
 	/**
-	 * Met à jour l'affichage des libertés suivant la valeur de la checkbox correspondante.
+	 * Renvoie la valeur actuelle d'une options d'affichage (libertés, chaines...)
+	 *
+	 * @param {string} option_name  Nom de l'option
+	 *
+	 * @return {boolean}
 	 */
-	updateShowLiberties() {
-		let value = $('#show-liberties--checkbox').prop('checked');
-		this.board.setDisplayLiberties(value);
+	getShowOption(option_name) {
+		return $(`#show-${option_name}--checkbox`).prop('checked');
 	}
 
 	/**
-	 * Met à jour l'affichage des chaines suivant la valeur de la checkbox correspondante.
+	 * Met à jour l'affichage d'une option suivant la valeur de la checkbox correspondante.
 	 */
-	updateShowChains() {
-		let value = $('#show-chains--checkbox').prop('checked');
-		this.board.setDisplayChains(value);
+	updateShowOption(option_name) {
+		this.board.setShowOption(option_name, this.getShowOption(option_name));
+	}
+
+	/**
+	 * Définit une option d'affichage.
+	 *
+	 * @param {boolean} value
+	 */
+	setShowOption(option_name, value) {
+		$(`#show-${option_name}--checkbox`).prop('checked', value);
+		this.updateShowOption(option_name);
+	}
+
+	/**
+	 * Inverse la valeur de l'option "Afficher les libertés".
+	 */
+	toggleShowOption(option_name) {
+		this.setShowOption(option_name, !this.getShowOption(option_name));
 	}
 
 	/**
@@ -67,9 +86,15 @@ class App {
 
 		new_game_popup
 			.on('confirm', () => {
+				// Indique qu'une nouvelle partie a été demandée, donc il ne faudra pas prendre en
+				// compte une partie indiquée dans l'url:
 				this.newGame = true;
+
+				// Récupère les dimensions du plateau demandées:
 				let w = Number($('#game-width--input').val());
 				let h = Number($('#game-height--input').val());
+
+				// Réinitialise la partie:
 				this.reset(w, h);
 			})
 	}
@@ -127,9 +152,17 @@ class App {
 	setupDebug() {
 		$('body').keydown((ev) => {
 			let key = ev.originalEvent.key;
-			if (key === 'a') {
-				this.game.togglePlayer();
-				this.game.resetIsAllowedCache();
+			switch (key) {
+				case ('a'):
+					this.game.togglePlayer();
+					this.game.resetIsAllowedCache();
+					break;
+				case ('l'):
+					this.toggleShowOption('liberties');
+					break;
+				case ('c'):
+					this.toggleShowOption('chains');
+					break;
 			}
 		});
 	}
