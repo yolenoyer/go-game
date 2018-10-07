@@ -1,6 +1,8 @@
 
 const EventEmitter = require('eventemitter3');
 
+require('./css/popup.scss');
+
 
 /**
  * Représente une fenêtre popup.
