@@ -47,6 +47,9 @@ class BoardCell {
 
 		// Comportement lors du survol d'une case:
 		this.dom.mouseover(() => {
+			// Définit la case actuellement sous la souris:
+			this.board.cellUnderMouse = this;
+
 			if (this.cell.isAllowed()) {
 				// Affiche la pierre en semi-transparence:
 				this.setPending(this.game.currentPlayer);
@@ -86,6 +89,11 @@ class BoardCell {
 				}
 			}
 		})
+
+		// Comportement lorsque la souris quitte la case:
+		this.dom.mouseout(() => {
+			this.board.cellUnderMouse = null;
+		});
 
 		// Comportement lors du clic:
 		this.dom.click(() => {

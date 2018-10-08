@@ -31,6 +31,9 @@ class Board extends EventEmitter {
 		// (libertés, chaines):
 		this.marks = {};
 
+		// La case actuellement sous le pointeur de la souris:
+		this.cellUnderMouse = null;
+
 		// Initialise le plateau:
 		this.reset();
 	}

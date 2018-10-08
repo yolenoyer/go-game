@@ -156,6 +156,13 @@ class App {
 				case ('a'):
 					this.game.togglePlayer();
 					this.game.resetPlayableInformation();
+
+					// Actualise le visuel sous la souris:
+					let cell = this.board.cellUnderMouse;
+					if (cell) {
+						cell.dom.mouseout();
+						cell.dom.mouseover();
+					}
 					break;
 				case ('l'):
 					this.toggleShowOption('liberties');
