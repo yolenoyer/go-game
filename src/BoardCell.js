@@ -1,5 +1,6 @@
 
 const Player = require('./go/Player');
+const { NotAFreeCellException } = require('./Exceptions.js');
 
 
 // Noms de classe css des layers à ajouter dans les cases de plateau:
@@ -55,10 +56,23 @@ class BoardCell {
 					this.setState(this.cell.state);
 				})
 			} else {
-				this.dom.addClass('forbidden');
-				this.dom.one('mouseout', () => {
-					this.dom.removeClass('forbidden');
-				})
+				// Si cette case n'est pas jouable, récupère l'exception qui indique pourquoi:
+				let goException = this.cell.getPlayableInformation();
+
+				// Ajoute un attribut html 'title' expliquant pourquoi la case n'est pas jouable, à
+				// l'exception du cas trop commun d'une case non-libre:
+				if (!(goException instanceof NotAFreeCellException)) {
+					this.dom
+						.attr('title', goException.message)
+				}
+
+				this.dom
+					.addClass('forbidden')
+					.one('mouseout', () => {
+						this.dom
+							.removeClass('forbidden')
+							.attr('title', '')
+					})
 			}
 
 			// Gère l'affichage des libertés et des chaines:

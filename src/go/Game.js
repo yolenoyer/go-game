@@ -5,6 +5,14 @@ const Chain = require('./Chain');
 const Cell = require('./Cell');
 const ContextCell = require('./ContextCell');
 const Url = require('../Url');
+const History = require('./History');
+
+const {
+	NotAFreeCellException,
+	GoException,
+	SuicideException,
+	KoException,
+} = require('../Exceptions.js');
 
 
 /**
@@ -67,6 +75,9 @@ class Game {
 				line.push(new Cell(this, x, y));
 			}
 		}
+
+		// Création d'un nouvel historique de jeu:
+		this.history = new History(this);
 	}
 
 	/**
@@ -122,8 +133,8 @@ class Game {
 	/**
 	 * Pour chaque case, supprime le cache indiquant si le coup est jouable.
 	 */
-	resetIsAllowedCache() {
-		this.eachCell(cell => cell.resetIsAllowedCache());
+	resetPlayableInformation() {
+		this.eachCell(cell => cell.resetPlayableInformation());
 	}
 
 	/**
@@ -139,6 +150,26 @@ class Game {
 			}
 		});
 		return chains;
+	}
+
+	/**
+	 * Vérifie si la règle du ko s'applique pour ce tour de jeu.
+	 *
+	 * @return {boolean}
+	 */
+	isKoRuleVerifed() {
+		let lastTurn = this.history.getLastTurn(2);
+
+		// Si l'historique n'est pas encore assez grand pour revenir de deux coups en arrière:
+		if (!lastTurn) {
+			return false;
+		}
+
+		let oldDump = lastTurn.dump;
+		let currentDump = this.getDump();
+
+		return oldDump === currentDump;
+
 	}
 
 
@@ -284,7 +315,7 @@ class Game {
 	 */
 	applySaveContext() {
 		this._stopSaveContext();
-		this.resetIsAllowedCache();
+		this.resetPlayableInformation();
 	}
 
 	/**
@@ -323,12 +354,17 @@ class Game {
 
 	/**
 	 * Effectue un tour de jeu pour le joueur courant.
+	 * Si le coup n'est pas autorisé, envoie une exception `GoException` détaillant la raison.
 	 *
 	 * @param {Cell} cell  Case dans laquelle poser une pierre.
 	 *
 	 * @return {CellList}  Liste des ennemis capturés
 	 */
 	_play(cell) {
+		if (!cell.isFree()) {
+			throw new NotAFreeCellException(cell);
+		}
+
 		cell.setState(this.currentPlayer);
 
 		// Crée la chaine pour le nouveau pion, en fusionnant éventuellement avec les chaines amies
@@ -348,6 +384,17 @@ class Game {
 		let ennemies_to_capture = cell.getEnnemiesToCapture();
 		ennemies_to_capture.capture();
 
+		// Récupère le nombre de libertés que possède la nouvelle chaine de la pierre jouée:
+		let nb_liberties = cell.chain.getLiberties().length;
+
+		if (nb_liberties === 0) {
+			throw new SuicideException(cell);
+		}
+
+		if (this.isKoRuleVerifed()) {
+			throw new KoException(cell);
+		}
+
 		return ennemies_to_capture;
 	}
 
@@ -362,39 +409,57 @@ class Game {
 	tryPlay(cell) {
 		this.startSaveContext();
 
-		let ennemies_to_capture = this._play(cell);
+		try {
+			let ennemies_to_capture = this._play(cell);
 
-		// Récupère le nombre de libertés que possède la nouvelle chaine de la pierre jouée:
-		let nb_liberties = cell.chain.getLiberties().length;
-
-		if (nb_liberties === 0) {
-			// Si la chaine n'a aucune liberté, alors ce coup est interdit, et le coup est annulé:
-			this.restoreSaveContext();
-			return null;
-		} else {
 			// Si la chaine a au moins une liberté, alors le coup est appliqué:
 			this.applySaveContext();
+			// Sauve le tour dans l'historique:
+			this.history.saveLastTurn(cell);
+
+			// Renvoie les ennemis supprimés, afin de les supprimer en mirroir dans le dom:
 			return ennemies_to_capture;
+		}
+		catch (error) {
+			if (error instanceof GoException) {
+				console.log(`Non-autorisé: ${error.message}`);
+			} else {
+				throw error;
+			}
+
+			// Si la chaine n'a aucune liberté, ou que la règle du ko est vérifiée, alors ce coup
+			// est interdit, et le coup doit être est annulé:
+			this.restoreSaveContext();
+
+			return null;
 		}
 	}
 
 	/**
 	 * Simule entièrement un coup afin de vérifier s'il est autorisé.
-	 * Renvoie `true` si le coup est autorisé.
 	 *
 	 * @param {Cell} cell  Case dans laquelle ouer (joueur courant)
 	 *
-	 * @return {boolean}  `true` si le coup est autorisé
+	 * @return {boolean|GoException}  `true` si le coup est autorisé, sinon une exception
 	 */
-	isPlayAllowed(cell) {
+	getPlayableInformation(cell) {
+		let info = true;
+
 		this.startSaveContext();
 
-		this._play(cell);
-		let nb_liberties = cell.chain.getLiberties().length;
+		try {
+			this._play(cell);
+		}
+		catch (error) {
+			if (!(error instanceof GoException)) {
+				throw error;
+			}
+			info = error;
+		}
 
 		this.restoreSaveContext();
 
-		return nb_liberties !== 0;
+		return info;
 	}
 }
 

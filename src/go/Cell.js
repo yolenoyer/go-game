@@ -86,23 +86,28 @@ class Cell {
 	 * Renvoie `true` si la case est jouable par le joueur courant.
 	 */
 	isAllowed() {
-		if (this._isAllowed === undefined) {
-			if (!this.isFree()) {
-				this._isAllowed = false;
-			} else {
-				this._isAllowed = this.game.isPlayAllowed(this);
-			}
-		} else {
-		}
-		return this._isAllowed;
+		return this.getPlayableInformation() === true;
 	}
 
 	/**
-	 * Supprime le cache pour la valeur de retour de la méthode `isAllowed()`.
+	 * Renvoie des informations sur la "jouabilité" de la case par le joueur courant.
+	 * Conserve cette info en cache car elle est plutôt gourmande en ressources, et elle est requise
+	 * à chaque survol d'une case. Cependant, à la fin de chaque tour, le cache est effacé afin de
+	 * fournir des informations cohérentes.
+	 */
+	getPlayableInformation() {
+		if (this._playableInformation === undefined) {
+			this._playableInformation = this.game.getPlayableInformation(this);
+		}
+		return this._playableInformation;
+	}
+
+	/**
+	 * Supprime le cache pour la valeur de retour de la méthode `getPlayableInformation()`.
 	 * Doit être fait sur chaque case après chaque coup.
 	 */
-	resetIsAllowedCache() {
-		delete this._isAllowed;
+	resetPlayableInformation() {
+		delete this._playableInformation;
 	}
 
 	/**

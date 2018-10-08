@@ -155,7 +155,7 @@ class App {
 			switch (key) {
 				case ('a'):
 					this.game.togglePlayer();
-					this.game.resetIsAllowedCache();
+					this.game.resetPlayableInformation();
 					break;
 				case ('l'):
 					this.toggleShowOption('liberties');
