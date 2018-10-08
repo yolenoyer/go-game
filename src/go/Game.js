@@ -399,21 +399,26 @@ class Game {
 	}
 
 	/**
-	 * Tente de jouer la case indiquée (joueur courant). Si ce coup est interdit, restore l'état
-	 * original.
+	 * Joue la case indiquée (joueur courant). Si ce coup est interdit, restore l'état original et
+	 * envoie une exception.
 	 *
 	 * @param {Cell} cell  Case à jouer
 	 *
 	 * @return {CellList|null}  Liste des ennemis capturés, ou `null` si le coup est interdit
 	 */
-	tryPlay(cell) {
+	play(cell) {
 		this.startSaveContext();
 
 		try {
+			// Joue le coup:
 			let ennemies_to_capture = this._play(cell);
 
-			// Si la chaine a au moins une liberté, alors le coup est appliqué:
+			// Si le coup était illégal, une exception est envoyée et la suite n'est donc pas
+			// exécutée:
+
+			// Applique le coup:
 			this.applySaveContext();
+
 			// Sauve le tour dans l'historique:
 			this.history.saveLastTurn(cell);
 
@@ -421,9 +426,7 @@ class Game {
 			return ennemies_to_capture;
 		}
 		catch (error) {
-			if (error instanceof GoException) {
-				console.log(`Non-autorisé: ${error.message}`);
-			} else {
+			if (!(error instanceof GoException)) {
 				throw error;
 			}
 
@@ -431,7 +434,7 @@ class Game {
 			// est interdit, et le coup doit être est annulé:
 			this.restoreSaveContext();
 
-			return null;
+			throw error;
 		}
 	}
 

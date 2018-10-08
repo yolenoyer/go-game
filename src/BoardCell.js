@@ -89,18 +89,21 @@ class BoardCell {
 
 		// Comportement lors du clic:
 		this.dom.click(() => {
-			if (this.cell.isAllowed()) {
-				this.setState(this.game.currentPlayer);
-				let cells_to_be_captured = this.game.tryPlay(this.cell);
-				if (cells_to_be_captured !== null) {
-					for (let cell of cells_to_be_captured.cells) {
-						cell.boardCell.capture();
-					}
-
-					// Émet un évênement indiquant la fin du tour:
-					this.board.emit('turn-done');
-				}
+			if (!this.cell.isAllowed()) {
+				return;
 			}
+
+			let cells_to_be_captured = this.game.play(this.cell);
+
+			this.setState(this.game.currentPlayer);
+
+			// Supprime visuellement les cellules capturées durant le tour:
+			for (let cell of cells_to_be_captured.cells) {
+				cell.boardCell.capture();
+			}
+
+			// Émet un évênement indiquant la fin du tour:
+			this.board.emit('turn-done');
 		})
 	}
 
