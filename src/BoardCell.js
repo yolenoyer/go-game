@@ -1,5 +1,6 @@
 
 const Player = require('./go/Player');
+const Url = require('./Url');
 const { NotAFreeCellException } = require('./Exceptions.js');
 
 
@@ -96,18 +97,27 @@ class BoardCell {
 		});
 
 		// Comportement lors du clic:
-		this.dom.click(() => {
-			if (!this.cell.isAllowed()) {
-				return;
-			}
+		this.dom.click((event) => {
+			if (Url.debug && event.originalEvent.ctrlKey) {
+				// Debug:
+				this.cell.setState(Player.FREE);
+				this.game.resetChains();
+				this.game.resetPlayableInformation();
+				this.setState(Player.FREE);
+				this.dom.mouseout().mouseover();
+			} else {
+				if (!this.cell.isAllowed()) {
+					return;
+				}
 
-			let cells_to_be_captured = this.game.play(this.cell);
+				let cells_to_be_captured = this.game.play(this.cell);
 
-			this.setState(this.game.currentPlayer);
+				this.setState(this.game.currentPlayer);
 
-			// Supprime visuellement les cellules capturées durant le tour:
-			for (let cell of cells_to_be_captured.cells) {
-				cell.boardCell.capture();
+				// Supprime visuellement les cellules capturées durant le tour:
+				for (let cell of cells_to_be_captured.cells) {
+					cell.boardCell.capture();
+				}
 			}
 
 			// Émet un évênement indiquant la fin du tour:

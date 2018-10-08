@@ -153,16 +153,16 @@ class App {
 		$('body').keydown((ev) => {
 			let key = ev.originalEvent.key;
 			switch (key) {
+				case (' '):
 				case ('a'):
 					this.game.togglePlayer();
 					this.game.resetPlayableInformation();
 
 					// Actualise le visuel sous la souris:
-					let cell = this.board.cellUnderMouse;
-					if (cell) {
-						cell.dom.mouseout();
-						cell.dom.mouseover();
+					if (this.board.cellUnderMouse) {
+						this.board.cellUnderMouse.dom.mouseout().mouseover();
 					}
+
 					break;
 				case ('l'):
 					this.toggleShowOption('liberties');
