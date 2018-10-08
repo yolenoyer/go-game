@@ -1,6 +1,9 @@
 dist/main.js
 dist/vendor.js
+dist/*.png
+dist/*.jpg
 dist/*.js.map
+dist/font-awesome
 .sw?
 *.sw?
 node_modules
