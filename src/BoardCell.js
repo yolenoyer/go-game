@@ -80,7 +80,7 @@ class BoardCell {
 			}
 
 			// Gère l'affichage des libertés et des chaines:
-			if (!this.cell.isFree()) {
+			if (this.cell.isUsed()) {
 				if (this.board.displayOptions.liberties) {
 					let liberties = this.cell.chain.getLiberties();
 					this.showMarks(liberties, '.liberty-mark');

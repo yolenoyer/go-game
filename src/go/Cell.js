@@ -83,6 +83,13 @@ class Cell {
 	}
 
 	/**
+	 * Renvoie `true`si cette case est utilisée.
+	 */
+	isUsed() {
+		return this.state !== Player.FREE;
+	}
+
+	/**
 	 * Renvoie `true` si la case est jouable par le joueur courant.
 	 */
 	isAllowed() {

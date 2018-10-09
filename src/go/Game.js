@@ -255,7 +255,7 @@ class Game {
 	resetChains() {
 		this.eachCell(cell => cell.setChain(null));
 		this.eachCell(cell => {
-			if (!cell.isFree() && !cell.chain) {
+			if (cell.isUsed() && !cell.chain) {
 				let chain = cell.findChain();
 				chain.setChain(chain);
 			}
@@ -361,7 +361,7 @@ class Game {
 	 * @return {CellList}  Liste des ennemis capturés
 	 */
 	_play(cell) {
-		if (!cell.isFree()) {
+		if (cell.isUsed()) {
 			throw new NotAFreeCellException(cell);
 		}
 
