@@ -8,9 +8,19 @@ const CellList = require('./CellList');
 class FreeZone extends CellList {
 	/**
 	 * Constructor.
+	 *
+	 * @param Game game      Jeu associé
+	 * @param {Array} cells  Optionnel: liste de cases initiale
 	 */
-	constructor(game) {
-		super(game);
+	constructor(game, cells) {
+		super(game, cells);
+	}
+
+	/**
+	 * Définit la propriété `freeZone` pour toutes les cases de la liste.
+	 */
+	setFreeZone() {
+		this.each(cell => cell.setFreeZone(this));
 	}
 }
 

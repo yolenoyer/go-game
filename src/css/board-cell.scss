@@ -63,9 +63,9 @@ td.board-cell {
 	}
 
 	// **************************** MARK *****************************
-	// Style pour les layers de marqueurs (affichage des libertés et des chaines).
+	// Style pour les layers de marqueurs (affichage des libertés, des chaines, des zones libres).
 
-	.layer.liberty-mark, .layer.chain-mark {
+	.layer.liberty-mark, .layer.chain-mark, .layer.freezones-mark {
 		transition: opacity 0.5s;
 
 		&.visible {
@@ -91,6 +91,15 @@ td.board-cell {
 
 			border-radius: 1000px;
 			background-color: #009de6;
+		}
+	}
+
+	.layer.freezones-mark {
+		.visual {
+			@include visual-size(0.22);
+
+			border-radius: 1000px;
+			background-color: magenta;
 		}
 	}
 

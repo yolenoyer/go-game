@@ -2,6 +2,7 @@
 const CellList = require('./CellList');
 const Chain = require('./Chain');
 const Player = require('./Player');
+const FreeZone = require('./FreeZone');
 
 
 /**
@@ -316,6 +317,64 @@ class Cell {
 		let chain = this._findChain();
 		chain.unmark();
 		return chain;
+	}
+
+
+	//############################################################################################
+	//                                       COMPTAGE DES POINTS                                //
+	//############################################################################################
+
+	/**
+	 * Supprime l'information `freeZone`.
+	 */
+	resetFreeZone() {
+		delete this.freeZone;
+	}
+
+	/**
+	 * Définit la propriété `freeZone`.
+	 *
+	 * @param {FreeZone} free_zone
+	 */
+	setFreeZone(free_zone) {
+		this.freeZone = free_zone;
+	}
+
+	/**
+	 * Méthode récursive pour `findFreeZone()`.
+	 *
+	 * @return {FreeZone}
+	 */
+	_findFreeZone() {
+		let free_neighbours = this.getFreeUnmarkedNeighbours();
+
+		this.mark();
+		free_neighbours.mark();
+
+		let free_zone = new FreeZone(this.game, [ this ]);
+		free_neighbours.each(free_neighbour => {
+			let neighbour_zone = free_neighbour._findFreeZone();
+			free_zone.appendCellList(neighbour_zone);
+		})
+
+		return free_zone;
+	}
+
+	/**
+	 * Cherche une zone libre en commençant par cette case.
+	 *
+	 * @return {FreeZone}
+	 */
+	findFreeZone() {
+		if (this.isUsed()) {
+			return null;
+		}
+
+		let free_zone = this._findFreeZone();
+		free_zone.setFreeZone();
+		free_zone.unmark();
+
+		return free_zone;
 	}
 }
 

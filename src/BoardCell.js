@@ -5,7 +5,7 @@ const { NotAFreeCellException } = require('./Exceptions.js');
 
 
 // Noms de classe css des layers à ajouter dans les cases de plateau:
-const CellLayers = [ 'piece', 'liberty-mark', 'chain-mark' ];
+const CellLayers = [ 'piece', 'liberty-mark', 'chain-mark', 'freezones-mark' ];
 
 
 /**
@@ -79,14 +79,22 @@ class BoardCell {
 					})
 			}
 
-			// Gère l'affichage des libertés et des chaines:
 			if (this.cell.isUsed()) {
+				// Gère l'affichage des libertés et des chaines:
 				if (this.board.displayOptions.liberties) {
 					let liberties = this.cell.chain.getLiberties();
 					this.showMarks(liberties, '.liberty-mark');
 				}
 				if (this.board.displayOptions.chains) {
 					this.showMarks(this.cell.chain, '.chain-mark');
+				}
+			} else {
+				// Gère l'affichage des zones de cases vides:
+				if (this.board.displayOptions.freezones) {
+					if (!this.cell.freeZone) {
+						this.cell.findFreeZone();
+					}
+					this.showMarks(this.cell.freeZone, '.freezones-mark');
 				}
 			}
 		})

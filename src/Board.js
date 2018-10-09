@@ -89,6 +89,7 @@ class Board extends EventEmitter {
 		this.$boardCells = this.cellsTable.find('.board-cell');
 		this.marks.liberties = this.$boardCells.find('.liberty-mark');
 		this.marks.chains = this.$boardCells.find('.chain-mark');
+		this.marks.freezones = this.$boardCells.find('.freezones-mark');
 	}
 
 	/**

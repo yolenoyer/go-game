@@ -24,11 +24,20 @@ class CellList {
 	}
 
 	/**
+	 * Loope sur toutes les cases de la liste.
+	 *
+	 * @param {function} func
+	 */
+	each(func) {
+		this.cells.map(cell => func(cell));
+	}
+
+	/**
 	 * Supprime la marque de toutes les cases de la liste.
 	 */
 	unmark()
 	{
-		this.cells.map(cell => cell.unmark());
+		this.each(cell => cell.unmark());
 	}
 
 
@@ -37,7 +46,7 @@ class CellList {
 	 */
 	mark()
 	{
-		this.cells.map(cell => cell.mark());
+		this.each(cell => cell.mark());
 	}
 
 	/**
@@ -46,14 +55,14 @@ class CellList {
 	 * @param {Chain} chain
 	 */
 	setChain(chain) {
-		this.cells.map(cell => cell.setChain(chain));
+		this.each(cell => cell.setChain(chain));
 	}
 
 	/**
 	 * Enlève du plateau tous les pions de la liste.
 	 */
 	capture() {
-		this.cells.map(cell => cell.capture());
+		this.each(cell => cell.capture());
 	}
 
 	/**

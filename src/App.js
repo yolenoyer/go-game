@@ -23,6 +23,12 @@ class App {
 			this.updateShowOption('chains');
 		})
 
+		// Gère l'activation du mode "Afficher les zones de cases libres":
+		this.updateShowOption('freezones');
+		$('#show-freezones--checkbox').change((ev) => {
+			this.updateShowOption('freezones');
+		})
+
 		this.setupNewGamePopup();
 		this.setupOptionsPopup();
 
@@ -169,6 +175,9 @@ class App {
 					break;
 				case ('c'):
 					this.toggleShowOption('chains');
+					break;
+				case ('f'):
+					this.toggleShowOption('freezones');
 					break;
 			}
 		});

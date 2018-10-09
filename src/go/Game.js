@@ -316,6 +316,7 @@ class Game {
 	applySaveContext() {
 		this._stopSaveContext();
 		this.resetPlayableInformation();
+		this.resetFreeZones();
 	}
 
 	/**
@@ -463,6 +464,45 @@ class Game {
 		this.restoreSaveContext();
 
 		return info;
+	}
+
+	//############################################################################################
+	//                                        CALCUL DES POINTS                                 //
+	//############################################################################################
+
+	/**
+	 * Supprime toutes les free zones éventuellement définies.
+	 */
+	resetFreeZones() {
+		this.eachCell(cell => cell.resetFreeZone());
+	}
+
+	/**
+	 * Cherche toutes les zones libres du plateau.
+	 *
+	 * @return {FreeZone[]}
+	 */
+	findFreeZones() {
+		let free_zones = [];
+
+		this.eachCell(cell => {
+			if (cell.isUsed() || cell.freeZone) {
+				return;
+			}
+
+			let free_zone = cell.findFreeZone();
+			free_zone.setCellsFreeZones();
+			free_zones.push(free_zone);
+		});
+
+		return free_zones;
+	}
+
+	/**
+	 * Calcule les points en fin de partie.
+	 */
+	calculatePoints() {
+		let free_zones = this.findFreeZones();
 	}
 }
 
