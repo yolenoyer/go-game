@@ -118,9 +118,11 @@ class BoardCell {
 					return;
 				}
 
-				let cells_to_be_captured = this.game.play(this.cell);
-
+				// Change l'état de la case cliquée:
 				this.setState(this.game.currentPlayer);
+
+				// Joue le coup:
+				let cells_to_be_captured = this.game.play(this.cell);
 
 				// Supprime visuellement les cellules capturées durant le tour:
 				for (let cell of cells_to_be_captured.cells) {
