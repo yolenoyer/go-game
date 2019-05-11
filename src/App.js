@@ -31,11 +31,7 @@ class App {
 
 		this.setupNewGamePopup();
 		this.setupOptionsPopup();
-
-		// Outils de debug:
-		if (Url.debug) {
-			this.setupDebug();
-		}
+		this.setupDebugMode();
 	}
 
 	/**
@@ -138,8 +134,10 @@ class App {
 		this.height = height;
 
 		this.game = new Game(this.width, this.height);
+		this.game.setDebugMode(this.debugMode);
 		this.board = new Board(this.boardDom, this.game);
 
+		// Debug:
 		window.app = this;
 		window.game = this.game;
 		window.board = this.board;
@@ -155,12 +153,47 @@ class App {
 		})
 	}
 
-	setupDebug() {
-		$('body').keydown((ev) => {
+	setupDebugMode() {
+		this.setDebugMode(Url.debug);
+		$('body').on('keydown.gogame', (ev) => {
 			let key = ev.originalEvent.key;
 			switch (key) {
-				case (' '):
-				case ('a'):
+				case 'D':
+					this.switchDebugMode();
+					break;
+				case 'l':
+					this.toggleShowOption('liberties');
+					break;
+				case 'c':
+					this.toggleShowOption('chains');
+					break;
+				case 'f':
+					this.toggleShowOption('freezones');
+					break;
+			}
+		})
+	}
+
+	setDebugMode(state) {
+		this.debugMode = state;
+		this.game.setDebugMode(this.debugMode);
+		if (this.debugMode) {
+			this.installDebugMode()
+		} else {
+			this.uninstallDebugMode();
+		}
+	}
+
+	switchDebugMode() {
+		this.setDebugMode(!this.debugMode);
+	}
+
+	installDebugMode() {
+		$('body').on('keydown.debug_gogame', (ev) => {
+			let key = ev.originalEvent.key;
+			switch (key) {
+				case ' ':
+				case 'a':
 					this.game.togglePlayer();
 					this.game.resetPlayableInformation();
 
@@ -170,17 +203,12 @@ class App {
 					}
 
 					break;
-				case ('l'):
-					this.toggleShowOption('liberties');
-					break;
-				case ('c'):
-					this.toggleShowOption('chains');
-					break;
-				case ('f'):
-					this.toggleShowOption('freezones');
-					break;
 			}
 		});
+	}
+
+	uninstallDebugMode() {
+		$('body').off('keydown.debug_gogame');
 	}
 }
 

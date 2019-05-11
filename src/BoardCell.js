@@ -106,7 +106,7 @@ class BoardCell {
 
 		// Comportement lors du clic:
 		this.dom.click((event) => {
-			if (Url.debug && event.originalEvent.ctrlKey) {
+			if (this.game.debugMode && event.originalEvent.ctrlKey) {
 				// Debug:
 				this.cell.setState(Player.FREE);
 				this.game.resetChains();

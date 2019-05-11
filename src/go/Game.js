@@ -50,6 +50,7 @@ class Game {
 	 */
 	constructor(width, height) {
 		this.reset(width, height);
+		this.setDebugMode(false);
 	}
 
 	/**
@@ -78,6 +79,15 @@ class Game {
 
 		// Création d'un nouvel historique de jeu:
 		this.history = new History(this);
+	}
+
+	/**
+	 * Définit le mode debug.
+	 *
+	 * @param {boolean} state
+	 */
+	setDebugMode(state) {
+		this.debugMode = !!state;
 	}
 
 	/**
@@ -377,7 +387,7 @@ class Game {
 		new_chain.setChain(new_chain);
 
 		// Change de joueur courant:
-		if (!Url.debug) {
+		if (!this.debugMode) {
 			this.togglePlayer();
 		}
 
